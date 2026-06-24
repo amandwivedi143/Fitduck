@@ -1,0 +1,27 @@
+spring:
+  data:
+    mongodb:
+      uri: mongodb://localhost:27017/fitness_recommendation
+      database: fitness_recommendation
+eureka:
+  client:
+    service-url:
+      defaultZone: http://localhost:8761/eureka/
+server:
+  port: 8083
+
+rabbitmq:
+  exchange:
+    name: fitness.exchange
+  queue:
+    name: activity.queue
+  routing:
+    key: activity.tracking
+  host: localhost
+  port: 5672
+  username: guest
+  password: guest
+groq:
+  api:
+    url: "https://api.groq.com/openai/v1/chat/completions"
+    key: ${GROQ_API_KEY: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}

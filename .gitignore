@@ -1,0 +1,35 @@
+# ---- Logs (whole project) ----
+logs/
+*.log
+*.err
+
+# ---- Maven build output ----
+target/
+**/target/
+!.mvn/wrapper/maven-wrapper.jar
+
+# ---- IDEs ----
+.idea/
+*.iws
+*.iml
+*.ipr
+.vscode/
+.classpath
+.project
+.settings/
+.factorypath
+.springBeans
+.sts4-cache
+
+# ---- OS junk ----
+.DS_Store
+Thumbs.db
+
+# ---- Node / frontend ----
+node_modules/
+frontend/dist/
+frontend/.env.local
+
+# ---- Secrets / env ----
+.env
+*.env.local

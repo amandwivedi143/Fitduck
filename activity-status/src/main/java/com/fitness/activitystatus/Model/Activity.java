@@ -10,7 +10,6 @@ import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.mongodb.core.mapping.Document;
 import org.springframework.data.mongodb.core.mapping.Field;
 
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.Map;
 
@@ -22,13 +21,13 @@ import java.util.Map;
 public class Activity{
    @Id
     private String id;
-    private String userid;
+    private String userId;
     private  ActivityType type;
     private Integer duration;
-    private Integer caloriesburned;
-    private LocalDate startTime;
-    @Field("metrices")
-    private Map<String , Object> addtionalMetrics;
+    private Integer caloriesBurned;
+    private LocalDateTime startTime;
+    @Field("metrics")
+    private Map<String , Object> additionalMetrics;
 
     @CreatedDate
     private LocalDateTime createdAt;

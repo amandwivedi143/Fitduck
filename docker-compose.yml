@@ -1,0 +1,153 @@
+# ============================================================
+# Docker Compose — Fitness Web Microservices
+# ============================================================
+# Spin up the infrastructure (MySQL, MongoDB, RabbitMQ) and all
+# 6 Spring Boot services + the React frontend with one command:
+#
+#   docker compose up --build -d
+#
+# For local dev you probably only need the infra section:
+#   docker compose up -d mysql mongodb rabbitmq
+# ============================================================
+
+services:
+  # ---------- Infrastructure ----------
+
+  mysql:
+    image: mysql:8
+    container_name: fitness-mysql
+    environment:
+      MYSQL_ROOT_PASSWORD: ${MYSQL_PASSWORD:-}
+      MYSQL_DATABASE: user_fitness_db
+    ports:
+      - "3306:3306"
+    volumes:
+      - mysql-data:/var/lib/mysql
+
+  mongodb:
+    image: mongo:7
+    container_name: fitness-mongodb
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongo-data:/data/db
+
+  rabbitmq:
+    image: rabbitmq:3-management
+    container_name: fitness-rabbitmq
+    ports:
+      - "5672:5672"
+      - "15672:15672"   # management UI → http://localhost:15672 (guest/guest)
+    environment:
+      RABBITMQ_DEFAULT_USER: guest
+      RABBITMQ_DEFAULT_PASS: guest
+
+  # ---------- Backend Services (start after infra) ----------
+
+  eureka:
+    build:
+      context: ./eureka
+      dockerfile: Dockerfile
+    container_name: fitness-eureka
+    ports:
+      - "8761:8761"
+    depends_on:
+      - mysql
+      - mongodb
+      - rabbitmq
+
+  configserver:
+    build:
+      context: ./configserver
+      dockerfile: Dockerfile
+    container_name: fitness-configserver
+    ports:
+      - "8888:8888"
+    depends_on:
+      - eureka
+    environment:
+      - SPRING_PROFILES_ACTIVE=native
+
+  userservice:
+    build:
+      context: ./userservice
+      dockerfile: Dockerfile
+    container_name: fitness-userservice
+    ports:
+      - "8081:8081"
+    depends_on:
+      - configserver
+      - eureka
+      - mysql
+    environment:
+      - SPRING_CONFIG_IMPORT=optional:configserver:http://configserver:8888
+      - MYSQL_URL=jdbc:mysql://mysql:3306/user_fitness_db?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC
+      - MYSQL_USERNAME=root
+      - MYSQL_PASSWORD=${MYSQL_PASSWORD:-}
+
+  activity-service:
+    build:
+      context: ./activity-status
+      dockerfile: Dockerfile
+    container_name: fitness-activity-service
+    ports:
+      - "8082:8082"
+    depends_on:
+      - configserver
+      - eureka
+      - mongodb
+      - rabbitmq
+    environment:
+      - SPRING_CONFIG_IMPORT=optional:configserver:http://configserver:8888
+      - SPRING_DATA_MONGODB_URI=mongodb://mongodb:27017/fitnessactivities
+
+  ai-service:
+    build:
+      context: ./aiservice
+      dockerfile: Dockerfile
+    container_name: fitness-ai-service
+    ports:
+      - "8083:8083"
+    depends_on:
+      - configserver
+      - eureka
+      - mongodb
+      - rabbitmq
+    environment:
+      - SPRING_CONFIG_IMPORT=optional:configserver:http://configserver:8888
+      - SPRING_DATA_MONGODB_URI=mongodb://mongodb:27017/fitness_recommendation
+      - GROQ_API_KEY=${GROQ_API_KEY:-}
+
+  gateway:
+    build:
+      context: ./gateway
+      dockerfile: Dockerfile
+    container_name: fitness-gateway
+    ports:
+      - "8080:8080"
+    depends_on:
+      - configserver
+      - eureka
+      - userservice
+      - activity-service
+      - ai-service
+    environment:
+      - SPRING_CONFIG_IMPORT=optional:configserver:http://configserver:8888
+      - GOOGLE_CLIENT_ID=${GOOGLE_CLIENT_ID:-}
+      - APP_JWT_SECRET=${APP_JWT_SECRET:-change-me-in-production-32chars-minimum}
+
+  # ---------- Frontend ----------
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: fitness-frontend
+    ports:
+      - "5173:5173"
+    depends_on:
+      - gateway
+
+volumes:
+  mysql-data:
+  mongo-data:

@@ -1,20 +1,23 @@
 package com.fitness.activitystatus.Dto;
 
+import com.fasterxml.jackson.annotation.JsonAlias;
 import com.fitness.activitystatus.Model.ActivityType;
 import lombok.Data;
 
-import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.Map;
 
 @Data
 public class Activityrequest {
-private String userid;
+private String userId;
 private ActivityType type;
-private LocalDate startTime;
+private LocalDateTime startTime;
 private Integer duration;
-private Integer caloriesburned;
+@JsonAlias("caloriesburned")
+private Integer caloriesBurned;
 
 
-   private Map<String ,Object> addtionalMetrices ;
+   @JsonAlias({"addtionalMetrices", "addtionalMetrics"})
+   private Map<String ,Object> additionalMetrics ;
 
 }

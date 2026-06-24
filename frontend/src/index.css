@@ -1,0 +1,23 @@
+/* Minimal global reset — MUI theme handles all styling. */
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  padding: 0;
+  /* Dark base matching the MUI theme background; MUI CssBaseline will refine. */
+  background: #0F0B1A;
+  color: #F8FAFC;
+  font-family: 'Poppins', 'Roboto', 'Helvetica', 'Arial', sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+#root {
+  min-height: 100vh;
+}
+
+/* Remove Vite default App.css reference from the build awareness */

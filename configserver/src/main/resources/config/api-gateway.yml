@@ -1,0 +1,45 @@
+spring:
+  application:
+    name: api-gateway
+
+  cloud:
+    gateway:
+      server:
+        webflux:
+          routes:
+            - id: user-service
+              uri: lb://USER-SERVICE
+              predicates:
+                - Path=/api/user/**
+
+            - id: ai-service
+              uri: lb://AI-SERVICE
+              predicates:
+                - Path=/api/recommendation/**
+
+            - id: activity-service
+              uri: lb://ACTIVITY-SERVICE
+              predicates:
+                - Path=/api/activity/**
+
+server:
+  port: 8080
+
+eureka:
+  client:
+    service-url:
+      defaultZone: http://localhost:8761/eureka/
+
+# --- Google OAuth2 (token-exchange flow) ---
+app:
+  security:
+    # Google OAuth2 Web Client ID (audience we accept on Google ID tokens)
+    google-client-id: ${GOOGLE_CLIENT_ID:775509038693-bshcj00biq64gdc5r09ilnk18serure0.apps.googleusercontent.com}
+    # Secret used to SIGN the app JWT we issue. Override in prod via APP_JWT_SECRET env var.
+    app-jwt-secret: ${APP_JWT_SECRET:dev-only-super-secret-change-me-in-production-please-32chars}
+    app-jwt-issuer: fitness-gateway
+    app-jwt-ttl-minutes: 60
+    cookie-name: app_jwt
+    # Comma-separated paths that bypass authentication
+    public-paths: /api/auth/**,/actuator/**
+
