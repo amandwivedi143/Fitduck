@@ -20,6 +20,13 @@ const theme = createTheme({
     warning: {
       main: '#F97316',   // orange
     },
+    success: {
+      main: '#10B981',
+      light: '#34D399',
+    },
+    info: {
+      main: '#3B82F6',
+    },
     background: {
       default: '#0F0B1A',
       paper: '#1A1128',
@@ -28,10 +35,12 @@ const theme = createTheme({
       primary: '#F8FAFC',
       secondary: '#A1A1AA',
     },
+    divider: 'rgba(124,58,237,0.15)',
     gradient: {
       primary: 'linear-gradient(135deg, #7C3AED 0%, #EC4899 50%, #F97316 100%)',
       card: 'linear-gradient(135deg, rgba(124,58,237,0.15) 0%, rgba(236,72,153,0.15) 100%)',
       hero: 'linear-gradient(135deg, #7C3AED 0%, #EC4899 40%, #F97316 100%)',
+      sidebar: 'linear-gradient(180deg, rgba(124,58,237,0.08) 0%, rgba(236,72,153,0.05) 100%)',
     },
   },
   typography: {
@@ -124,6 +133,32 @@ const theme = createTheme({
               borderColor: '#7C3AED',
             },
           },
+        },
+      },
+    },
+    MuiLinearProgress: {
+      styleOverrides: {
+        root: {
+          borderRadius: 8,
+          height: 8,
+          backgroundColor: 'rgba(124,58,237,0.1)',
+        },
+        bar: {
+          borderRadius: 8,
+        },
+      },
+    },
+    MuiDrawer: {
+      styleOverrides: {
+        paper: {
+          borderRight: '1px solid rgba(124,58,237,0.15)',
+        },
+      },
+    },
+    MuiCircularProgress: {
+      styleOverrides: {
+        circle: {
+          strokeLinecap: 'round',
         },
       },
     },

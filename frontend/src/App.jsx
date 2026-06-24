@@ -1,12 +1,15 @@
 import { Routes, Route, Navigate, Outlet } from 'react-router-dom';
 import { Box, CircularProgress } from '@mui/material';
 import { useAuth } from './auth/AuthContext';
-import Navbar from './components/Navbar';
+import AppLayout from './components/AppLayout';
 import LoginPage from './pages/LoginPage';
 import DashboardPage from './pages/DashboardPage';
 import LogActivityPage from './pages/LogActivityPage';
 import ActivityHistoryPage from './pages/ActivityHistoryPage';
 import RecommendationsPage from './pages/RecommendationsPage';
+import MealPlannerPage from './pages/MealPlannerPage';
+import VideosPage from './pages/VideosPage';
+import WorkoutGeneratorPage from './pages/WorkoutGeneratorPage';
 
 /**
  * Guard: redirects to /login if the user has no valid session.
@@ -27,12 +30,9 @@ function ProtectedLayout() {
   }
 
   return (
-    <Box>
-      <Navbar />
-      <Box sx={{ maxWidth: 1200, mx: 'auto', px: { xs: 2, sm: 3 }, py: 1 }}>
-        <Outlet />
-      </Box>
-    </Box>
+    <AppLayout>
+      <Outlet />
+    </AppLayout>
   );
 }
 
@@ -48,6 +48,9 @@ export default function App() {
         <Route path="/activity/new" element={<LogActivityPage />} />
         <Route path="/activities" element={<ActivityHistoryPage />} />
         <Route path="/recommendations" element={<RecommendationsPage />} />
+        <Route path="/mealplanner" element={<MealPlannerPage />} />
+        <Route path="/videos" element={<VideosPage />} />
+        <Route path="/workoutgenerator" element={<WorkoutGeneratorPage />} />
       </Route>
 
       {/* Catch-all */}
