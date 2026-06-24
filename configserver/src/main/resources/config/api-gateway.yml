@@ -8,17 +8,27 @@ spring:
         webflux:
           routes:
             - id: user-service
-              uri: lb://USER-SERVICE
+              uri: lb://user-service
               predicates:
                 - Path=/api/user/**
 
             - id: ai-service
-              uri: lb://AI-SERVICE
+              uri: lb://ai-service
               predicates:
                 - Path=/api/recommendation/**
 
+            - id: aihelper-service
+              uri: lb://aihelper-service
+              predicates:
+                - Path=/api/mealplan/**
+
+            - id: aihelper-workout-service
+              uri: lb://aihelper-service
+              predicates:
+                - Path=/api/workoutplan/**
+
             - id: activity-service
-              uri: lb://ACTIVITY-SERVICE
+              uri: lb://activity-service
               predicates:
                 - Path=/api/activity/**
 

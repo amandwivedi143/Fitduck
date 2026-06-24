@@ -12,6 +12,7 @@
         <option value="$PROJECT_DIR$/aiservice/pom.xml" />
         <option value="$PROJECT_DIR$/configserver/pom.xml" />
         <option value="$PROJECT_DIR$/gateway/pom.xml" />
+        <option value="$PROJECT_DIR$/Aihelper/pom.xml" />
       </list>
     </option>
   </component>

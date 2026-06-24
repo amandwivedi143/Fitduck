@@ -1,57 +1,55 @@
-package com.fitness.aiservice.service;
+package com.fitness.aihelper.service;
 
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.client.WebClient;
 
+import java.time.Duration;
 import java.util.List;
 import java.util.Map;
 
 /**
- * Calls the Groq OpenAI-compatible chat completions endpoint.
- * (Renamed from GrokService — Groq is the actual provider.)
+ * Thin client for the Groq OpenAI-compatible chat-completions endpoint.
+ *
+ * Mirrors the proven GroqService in {@code aiservice} so we reuse the same model
+ * (openai/gpt-oss-120b) and the same Bearer-token request shape. The returned
+ * string is the full Groq JSON envelope — callers dig into
+ * {@code choices[0].message.content}.
  */
 @Service
 @Slf4j
 public class GroqService {
 
     private final WebClient webClient;
-    private final ObjectMapper mapper = new ObjectMapper();
 
     @Value("${groq.api.url}")
-    private String grokApiUrl;
+    private String groqApiUrl;
     @Value("${groq.api.key}")
-    private String grokApiKey;
+    private String groqApiKey;
 
     public GroqService(WebClient.Builder webClientBuilder) {
         this.webClient = webClientBuilder.build();
     }
 
     /**
-     * Returns the raw JSON response string from Groq. Callers parse the
-     * choices[0].message.content field.
+     * Sends a single user message and returns the raw Groq response JSON.
      */
-    public String getAnswer(String question) {
+    public String getAnswer(String prompt) {
         Map<String, Object> requestBody = Map.of(
                 "model", "openai/gpt-oss-120b",
                 "max_tokens", 4096,
                 "messages", List.of(
-                        Map.of(
-                                "role", "user",
-                                "content", question
-                        )
+                        Map.of("role", "user", "content", prompt)
                 )
         );
         return webClient.post()
-                .uri(grokApiUrl)
+                .uri(groqApiUrl)
                 .header("Content-Type", "application/json")
-                .header("Authorization", "Bearer " + grokApiKey)
+                .header("Authorization", "Bearer " + groqApiKey)
                 .bodyValue(requestBody)
                 .retrieve()
                 .bodyToMono(String.class)
-                .block();
+                .block(Duration.ofSeconds(60));
     }
 }
