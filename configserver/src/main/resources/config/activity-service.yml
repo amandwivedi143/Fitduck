@@ -1,10 +1,9 @@
 spring:
   application:
     name: activity-service
-  data:
-    mongodb:
-      uri: ${MONGODB_URI}
-      database: fitnessactivities
+  mongodb:
+    uri: ${MONGODB_URI}
+    database: fitnessactivities
   rabbitmq:
     host: ${RABBITMQ_HOST}
     port: ${RABBITMQ_PORT:5672}
