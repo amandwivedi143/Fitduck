@@ -33,20 +33,20 @@ spring:
                 - Path=/api/activity/**
 
 server:
-  port: 8080
+  port: ${PORT:8080}
 
 eureka:
   client:
     service-url:
-      defaultZone: http://localhost:8761/eureka/
+      defaultZone: ${EUREKA_URL}
 
 # --- Google OAuth2 (token-exchange flow) ---
 app:
   security:
     # Google OAuth2 Web Client ID (audience we accept on Google ID tokens)
-    google-client-id: ${GOOGLE_CLIENT_ID:775509038693-bshcj00biq64gdc5r09ilnk18serure0.apps.googleusercontent.com}
+    google-client-id: ${GOOGLE_CLIENT_ID}
     # Secret used to SIGN the app JWT we issue. Override in prod via APP_JWT_SECRET env var.
-    app-jwt-secret: ${APP_JWT_SECRET:dev-only-super-secret-change-me-in-production-please-32chars}
+    app-jwt-secret: ${APP_JWT_SECRET}
     app-jwt-issuer: fitness-gateway
     app-jwt-ttl-minutes: 60
     cookie-name: app_jwt

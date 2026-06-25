@@ -1,19 +1,19 @@
 spring:
   data:
     mongodb:
-      uri: mongodb://localhost:27017/fitness_mealplan
+      uri: ${MONGODB_URI}
       database: fitness_mealplan
   rabbitmq:
-    host: localhost
-    port: 5672
-    username: guest
-    password: guest
+    host: ${RABBITMQ_HOST}
+    port: ${RABBITMQ_PORT:5672}
+    username: ${RABBITMQ_USERNAME}
+    password: ${RABBITMQ_PASSWORD}
 server:
-  port: 8084
+  port: ${PORT:8084}
 eureka:
   client:
     service-url:
-      defaultZone: http://localhost:8761/eureka/
+      defaultZone: ${EUREKA_URL}
 rabbitmq:
   exchange:
     name: mealplan.exchange
@@ -31,4 +31,4 @@ rabbitmq:
 groq:
   api:
     url: "https://api.groq.com/openai/v1/chat/completions"
-    key: ${GROQ_API_KEY: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}
+    key: ${GROQ_API_KEY}

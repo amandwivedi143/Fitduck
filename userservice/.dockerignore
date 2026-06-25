@@ -1,0 +1,9 @@
+target/
+build/
+*.log
+HELP.md
+.mvn/
+.idea/
+*.iml
+Dockerfile
+.dockerignore
