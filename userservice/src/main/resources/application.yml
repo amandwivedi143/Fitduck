@@ -3,4 +3,4 @@ spring:
     name: user-service
 
   config:
-    import: optional:${CONFIG_SERVER_URL}
+    import: optional:configserver:${CONFIG_SERVER_URL}

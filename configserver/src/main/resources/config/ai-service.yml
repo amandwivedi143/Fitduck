@@ -2,11 +2,15 @@ spring:
   data:
     mongodb:
       uri: ${MONGODB_URI}
-      database: fitness_recommendation
+
 eureka:
   client:
     service-url:
-      defaultZone: ${EUREKA_URL}
+      defaultZone: ${EUREKA_URL:http://eureka:8761/eureka/}
+  instance:
+    hostname: localhost
+    prefer-ip-address: true
+
 server:
   port: ${PORT:8083}
 
@@ -21,6 +25,7 @@ rabbitmq:
   port: ${RABBITMQ_PORT:5672}
   username: ${RABBITMQ_USERNAME}
   password: ${RABBITMQ_PASSWORD}
+
 groq:
   api:
     url: "https://api.groq.com/openai/v1/chat/completions"

@@ -11,9 +11,8 @@ COPY . .
 RUN npm run build
 
 FROM nginx:alpine
-# nginx serves the SPA on 5173 and proxies /api to the gateway container,
-# mirroring the Vite dev-server proxy in vite.config.js.
+# nginx serves the SPA on port 80 and proxies /api to the gateway container.
 COPY nginx.conf /etc/nginx/conf.d/default.conf
 COPY --from=build /app/dist /usr/share/nginx/html
 
-EXPOSE 5173
+EXPOSE 80

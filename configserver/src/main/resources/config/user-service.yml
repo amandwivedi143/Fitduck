@@ -8,7 +8,7 @@ spring:
   jpa:
     hibernate:
       ddl-auto: update
-    show-sql: true
+    show-sql: false
 
 server:
   port: ${PORT:8081}
@@ -16,4 +16,7 @@ server:
 eureka:
   client:
     service-url:
-      defaultZone: ${EUREKA_URL}
+      defaultZone: ${EUREKA_URL:http://eureka:8761/eureka/}
+  instance:
+    hostname: localhost
+    prefer-ip-address: true

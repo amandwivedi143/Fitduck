@@ -73,7 +73,7 @@ public class AuthController {
     public Mono<ResponseEntity<Void>> logout() {
         ResponseCookie cleared = ResponseCookie.from(cookieName, "")
                 .httpOnly(true)
-                .secure(false) // dev is http; flip to true behind TLS in prod
+                .secure(true)  // prod is HTTPS; flip to false for local dev
                 .sameSite("Lax")
                 .path("/")
                 .maxAge(Duration.ZERO)
@@ -112,7 +112,7 @@ public class AuthController {
         String jwt = appJwtService.mint(authUser);
         ResponseCookie cookie = ResponseCookie.from(cookieName, jwt)
                 .httpOnly(true)
-                .secure(false) // dev http; set true in prod behind TLS
+                .secure(true)  // prod is HTTPS; flip to false for local dev
                 .sameSite("Lax")
                 .path("/")
                 .maxAge(Duration.ofMinutes(ttlMinutes))

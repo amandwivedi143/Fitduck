@@ -8,48 +8,48 @@ spring:
         webflux:
           routes:
             - id: user-service
-              uri: lb://user-service
+              uri: http://userservice:8081
               predicates:
                 - Path=/api/user/**
 
             - id: ai-service
-              uri: lb://ai-service
+              uri: http://ai-service:8083
               predicates:
                 - Path=/api/recommendation/**
 
             - id: aihelper-service
-              uri: lb://aihelper-service
+              uri: http://aihelper:8084
               predicates:
                 - Path=/api/mealplan/**
 
             - id: aihelper-workout-service
-              uri: lb://aihelper-service
+              uri: http://aihelper:8084
               predicates:
                 - Path=/api/workoutplan/**
 
             - id: activity-service
-              uri: lb://activity-service
+              uri: http://activity-service:8082
               predicates:
                 - Path=/api/activity/**
 
 server:
   port: ${PORT:8080}
+  forward-headers-strategy: NATIVE
 
 eureka:
   client:
     service-url:
-      defaultZone: ${EUREKA_URL}
+      defaultZone: ${EUREKA_URL:http://eureka:8761/eureka/}
+  instance:
+    hostname: localhost
+    prefer-ip-address: true
 
 # --- Google OAuth2 (token-exchange flow) ---
 app:
   security:
-    # Google OAuth2 Web Client ID (audience we accept on Google ID tokens)
     google-client-id: ${GOOGLE_CLIENT_ID}
-    # Secret used to SIGN the app JWT we issue. Override in prod via APP_JWT_SECRET env var.
     app-jwt-secret: ${APP_JWT_SECRET}
     app-jwt-issuer: fitness-gateway
     app-jwt-ttl-minutes: 60
     cookie-name: app_jwt
-    # Comma-separated paths that bypass authentication
     public-paths: /api/auth/**,/actuator/**
-

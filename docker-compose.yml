@@ -1,171 +1,243 @@
 # ============================================================
-# Docker Compose — Fitness Web Microservices
+# Docker Compose — Fitness Web Microservices (Production)
 # ============================================================
-# Spin up the infrastructure (MySQL, MongoDB, RabbitMQ) and all
-# 6 Spring Boot services + the React frontend with one command:
+# Designed for single-VM deployment (Oracle Cloud, etc.)
+# Databases are external: TiDB Cloud (MySQL) + MongoDB Atlas
+# Only port 80 (nginx) is exposed to the internet.
 #
-#   docker compose up --build -d
-#
-# For local dev you probably only need the infra section:
-#   docker compose up -d mysql mongodb rabbitmq
+#   docker compose up -d --build
 # ============================================================
 
 services:
   # ---------- Infrastructure ----------
 
-  mysql:
-    image: mysql:8
-    container_name: fitness-mysql
-    environment:
-      MYSQL_ROOT_PASSWORD: ${MYSQL_PASSWORD:-}
-      MYSQL_DATABASE: user_fitness_db
-    ports:
-      - "3306:3306"
-    volumes:
-      - mysql-data:/var/lib/mysql
-
-  mongodb:
-    image: mongo:7
-    container_name: fitness-mongodb
-    ports:
-      - "27017:27017"
-    volumes:
-      - mongo-data:/data/db
-
   rabbitmq:
     image: rabbitmq:3-management
     container_name: fitness-rabbitmq
-    ports:
-      - "5672:5672"
-      - "15672:15672"   # management UI → http://localhost:15672 (guest/guest)
+    restart: unless-stopped
+    # No port mapping — only accessible within Docker network
     environment:
       RABBITMQ_DEFAULT_USER: guest
       RABBITMQ_DEFAULT_PASS: guest
+    healthcheck:
+      test: ["CMD", "rabbitmq-diagnostics", "-q", "check_running"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    deploy:
+      resources:
+        limits:
+          memory: 256M
 
-  # ---------- Backend Services (start after infra) ----------
+  # ---------- Backend Services ----------
 
   eureka:
     build:
       context: ./eureka
       dockerfile: Dockerfile
     container_name: fitness-eureka
-    ports:
-      - "8761:8761"
-    depends_on:
-      - mysql
-      - mongodb
-      - rabbitmq
+    restart: unless-stopped
+    environment:
+      - PORT=8761
+    healthcheck:
+      test: ["CMD", "curl", "-sf", "http://localhost:8761/actuator/health"]
+      interval: 15s
+      timeout: 5s
+      retries: 5
+      start_period: 60s
+    deploy:
+      resources:
+        limits:
+          memory: 384M
 
   configserver:
     build:
       context: ./configserver
       dockerfile: Dockerfile
     container_name: fitness-configserver
-    ports:
-      - "8888:8888"
+    restart: unless-stopped
     depends_on:
-      - eureka
+      eureka:
+        condition: service_healthy
     environment:
+      - PORT=8888
       - SPRING_PROFILES_ACTIVE=native
+    healthcheck:
+      test: ["CMD", "curl", "-sf", "http://localhost:8888/actuator/health"]
+      interval: 15s
+      timeout: 5s
+      retries: 5
+      start_period: 60s
+    deploy:
+      resources:
+        limits:
+          memory: 384M
 
   userservice:
     build:
       context: ./userservice
       dockerfile: Dockerfile
     container_name: fitness-userservice
-    ports:
-      - "8081:8081"
+    restart: unless-stopped
     depends_on:
-      - configserver
-      - eureka
-      - mysql
+      configserver:
+        condition: service_healthy
     environment:
-      - SPRING_CONFIG_IMPORT=optional:configserver:http://configserver:8888
-      - MYSQL_URL=jdbc:mysql://mysql:3306/user_fitness_db?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC
-      - MYSQL_USERNAME=root
-      - MYSQL_PASSWORD=${MYSQL_PASSWORD:-}
+      - PORT=8081
+      - CONFIG_SERVER_URL=http://configserver:8888
+      - EUREKA_URL=http://eureka:8761/eureka/
+      # TiDB Cloud (external MySQL-compatible)
+      - MYSQL_URL=${SPRING_DATASOURCE_URL}
+      - MYSQL_USERNAME=${DB_USERNAME}
+      - MYSQL_PASSWORD=${DB_PASSWORD}
+    healthcheck:
+      test: ["CMD", "curl", "-sf", "http://localhost:8081/actuator/health"]
+      interval: 15s
+      timeout: 5s
+      retries: 5
+      start_period: 90s
+    deploy:
+      resources:
+        limits:
+          memory: 512M
 
   activity-service:
     build:
       context: ./activity-status
       dockerfile: Dockerfile
     container_name: fitness-activity-service
-    ports:
-      - "8082:8082"
+    restart: unless-stopped
     depends_on:
-      - configserver
-      - eureka
-      - mongodb
-      - rabbitmq
+      configserver:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
     environment:
-      - SPRING_CONFIG_IMPORT=optional:configserver:http://configserver:8888
-      - SPRING_DATA_MONGODB_URI=mongodb://mongodb:27017/fitnessactivities
+      - PORT=8082
+      - CONFIG_SERVER_URL=http://configserver:8888
+      - EUREKA_URL=http://eureka:8761/eureka/
+      # MongoDB Atlas (external)
+      - MONGODB_URI=${MONGODB_URI}
+      - RABBITMQ_HOST=rabbitmq
+      - RABBITMQ_PORT=5672
+      - RABBITMQ_USERNAME=guest
+      - RABBITMQ_PASSWORD=guest
+    healthcheck:
+      test: ["CMD", "curl", "-sf", "http://localhost:8082/actuator/health"]
+      interval: 15s
+      timeout: 5s
+      retries: 5
+      start_period: 90s
+    deploy:
+      resources:
+        limits:
+          memory: 512M
 
   ai-service:
     build:
       context: ./aiservice
       dockerfile: Dockerfile
     container_name: fitness-ai-service
-    ports:
-      - "8083:8083"
+    restart: unless-stopped
     depends_on:
-      - configserver
-      - eureka
-      - mongodb
-      - rabbitmq
+      configserver:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
     environment:
-      - SPRING_CONFIG_IMPORT=optional:configserver:http://configserver:8888
-      - SPRING_DATA_MONGODB_URI=mongodb://mongodb:27017/fitness_recommendation
-      - GROQ_API_KEY=${GROQ_API_KEY:-}
+      - PORT=8083
+      - CONFIG_SERVER_URL=http://configserver:8888
+      - EUREKA_URL=http://eureka:8761/eureka/
+      # MongoDB Atlas (external)
+      - MONGODB_URI=${MONGODB_URI}
+      - RABBITMQ_HOST=rabbitmq
+      - RABBITMQ_PORT=5672
+      - RABBITMQ_USERNAME=guest
+      - RABBITMQ_PASSWORD=guest
+      - GROQ_API_KEY=${GEN_AI_KEY}
+    healthcheck:
+      test: ["CMD", "curl", "-sf", "http://localhost:8083/actuator/health"]
+      interval: 15s
+      timeout: 5s
+      retries: 5
+      start_period: 90s
+    deploy:
+      resources:
+        limits:
+          memory: 512M
 
   aihelper:
     build:
       context: ./Aihelper
       dockerfile: Dockerfile
     container_name: fitness-aihelper-service
-    ports:
-      - "8084:8084"
+    restart: unless-stopped
     depends_on:
-      - configserver
-      - eureka
-      - mongodb
-      - rabbitmq
+      configserver:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
     environment:
-      - SPRING_CONFIG_IMPORT=optional:configserver:http://configserver:8888
-      - SPRING_DATA_MONGODB_URI=mongodb://mongodb:27017/fitness_mealplan
-      - GROQ_API_KEY=${GROQ_API_KEY:-}
+      - PORT=8084
+      - CONFIG_SERVER_URL=http://configserver:8888
+      - EUREKA_URL=http://eureka:8761/eureka/
+      # MongoDB Atlas (external)
+      - MONGODB_URI=${MONGODB_URI}
+      - RABBITMQ_HOST=rabbitmq
+      - RABBITMQ_PORT=5672
+      - RABBITMQ_USERNAME=guest
+      - RABBITMQ_PASSWORD=guest
+      - GROQ_API_KEY=${GEN_AI_KEY}
+    healthcheck:
+      test: ["CMD", "curl", "-sf", "http://localhost:8084/actuator/health"]
+      interval: 15s
+      timeout: 5s
+      retries: 5
+      start_period: 90s
+    deploy:
+      resources:
+        limits:
+          memory: 512M
 
   gateway:
     build:
       context: ./gateway
       dockerfile: Dockerfile
     container_name: fitness-gateway
-    ports:
-      - "8080:8080"
+    restart: unless-stopped
     depends_on:
-      - configserver
-      - eureka
-      - userservice
-      - activity-service
-      - ai-service
-      - aihelper
+      configserver:
+        condition: service_healthy
+      eureka:
+        condition: service_healthy
     environment:
-      - SPRING_CONFIG_IMPORT=optional:configserver:http://configserver:8888
-      - GOOGLE_CLIENT_ID=${GOOGLE_CLIENT_ID:-}
-      - APP_JWT_SECRET=${APP_JWT_SECRET:-change-me-in-production-32chars-minimum}
+      - PORT=8080
+      - CONFIG_SERVER_URL=http://configserver:8888
+      - EUREKA_URL=http://eureka:8761/eureka/
+      - GOOGLE_CLIENT_ID=${GOOGLE_CLIENT_ID}
+      - APP_JWT_SECRET=${APP_JWT_SECRET}
+    healthcheck:
+      test: ["CMD", "curl", "-sf", "http://localhost:8080/actuator/health"]
+      interval: 15s
+      timeout: 5s
+      retries: 5
+      start_period: 90s
+    deploy:
+      resources:
+        limits:
+          memory: 512M
 
-  # ---------- Frontend ----------
+  # ---------- Frontend (only service exposed to internet) ----------
 
   frontend:
     build:
       context: ./frontend
       dockerfile: Dockerfile
     container_name: fitness-frontend
-    ports:
-      - "5173:5173"
+    restart: unless-stopped
     depends_on:
-      - gateway
-
-volumes:
-  mysql-data:
-  mongo-data:
+      gateway:
+        condition: service_healthy
+    ports:
+      # ONLY exposed port — this is your public entry point
+      - "80:80"
