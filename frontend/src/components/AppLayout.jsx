@@ -84,7 +84,7 @@ export default function AppLayout() {
                   WebkitTextFillColor: 'transparent',
                 }}
               >
-                FitTrack
+                FitDuck
               </Typography>
             )}
 

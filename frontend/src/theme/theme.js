@@ -1,7 +1,7 @@
 import { createTheme } from '@mui/material/styles';
 
 /**
- * Premium Bright Light Theme for FitTrack AI.
+ * Premium Bright Light Theme for FitDuck AI.
  * Vibrant Indigo (#4F46E5) → Pink (#EC4899) → Orange (#F97316).
  * Crisp white and soft slates to feel clean, high-end, and professional.
  */

@@ -154,7 +154,7 @@ export default function LoginPage() {
             WebkitTextFillColor: 'transparent',
           }}
         >
-          FitTrack
+          FitDuck
         </Typography>
         <Typography variant="body2" color="text.secondary" sx={{ mb: 2.5 }}>
           {mode === 'login'

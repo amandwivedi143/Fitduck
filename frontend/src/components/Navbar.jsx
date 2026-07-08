@@ -47,7 +47,7 @@ export default function Navbar() {
               fontWeight: 800,
             }}
           >
-            FitTrack
+            FitDuck
           </Typography>
         </Box>
 

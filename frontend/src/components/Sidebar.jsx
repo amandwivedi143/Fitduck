@@ -66,7 +66,7 @@ export default function Sidebar() {
             WebkitTextFillColor: 'transparent',
           }}
         >
-          FitTrack AI
+          FitDuck AI
         </Typography>
         <Typography variant="caption" sx={{ color: 'text.secondary', letterSpacing: 2, textTransform: 'uppercase', fontWeight: 600 }}>
           Elite Performance
