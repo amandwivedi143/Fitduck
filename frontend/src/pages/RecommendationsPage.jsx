@@ -91,7 +91,7 @@ export default function RecommendationsPage() {
                       label={rec.activityType}
                       size="small"
                       sx={{
-                        background: 'linear-gradient(135deg, #7C3AED, #EC4899)',
+                        background: (theme) => theme.palette.gradient?.primary || 'linear-gradient(135deg, #4F46E5 0%, #EC4899 100%)',
                         color: '#fff',
                         fontWeight: 600,
                       }}
@@ -122,7 +122,7 @@ export default function RecommendationsPage() {
 
                 {/* Expanded details */}
                 <Collapse in={expanded[rec.id]}>
-                  <Divider sx={{ my: 2, borderColor: 'rgba(124,58,237,0.2)' }} />
+                  <Divider sx={{ my: 2, borderColor: 'divider' }} />
 
                   <Typography variant="body1" sx={{ whiteSpace: 'pre-line', mb: 2 }}>
                     {rec.recommendation}

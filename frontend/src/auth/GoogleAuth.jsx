@@ -1,4 +1,5 @@
 import { useEffect, useRef, useCallback } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { useAuth } from './AuthContext';
 
 // Your Google OAuth Client ID (Web application type).
@@ -15,16 +16,24 @@ const GOOGLE_CLIENT_ID =
  */
 export default function GoogleAuthButton() {
   const { loginWithGoogle } = useAuth();
+  const navigate = useNavigate();
   const buttonRef = useRef(null);
   const googleInitialized = useRef(false);
 
   const handleCredentialResponse = useCallback(
     async (response) => {
       if (response.credential) {
-        await loginWithGoogle(response.credential);
+        try {
+          await loginWithGoogle(response.credential);
+          navigate('/dashboard', { replace: true });
+        } catch (err) {
+          // swallow and log — navigation will not occur on failure
+          // eslint-disable-next-line no-console
+          console.error('Google login error', err);
+        }
       }
     },
-    [loginWithGoogle],
+    [loginWithGoogle, navigate],
   );
 
   useEffect(() => {

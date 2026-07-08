@@ -683,11 +683,11 @@ export default function MealPlannerPage() {
               {/* Day summary chips */}
               {activeDay && (
                 <Box sx={{ display: 'flex', gap: 1, mb: 3, flexWrap: 'wrap' }}>
-                  <Chip label={`${Math.round(activeDay.totalCalories)} kcal`} size="small" sx={{ bgcolor: 'rgba(236,72,153,0.12)', color: '#EC4899', fontWeight: 600 }} />
-                  <Chip label={`P: ${Math.round(activeDay.totalProtein)}g`} size="small" sx={{ bgcolor: 'rgba(124,58,237,0.12)', color: '#A78BFA', fontWeight: 600 }} />
-                  <Chip label={`C: ${Math.round(activeDay.totalCarbs)}g`} size="small" sx={{ bgcolor: 'rgba(167,139,250,0.12)', color: '#d2bbff', fontWeight: 600 }} />
-                  <Chip label={`F: ${Math.round(activeDay.totalFat)}g`} size="small" sx={{ bgcolor: 'rgba(244,114,182,0.12)', color: '#F472B6', fontWeight: 600 }} />
-                  <Chip label={`${dayMeals.length} meals`} size="small" sx={{ bgcolor: 'rgba(16,185,129,0.12)', color: '#10B981', fontWeight: 600 }} />
+                  <Chip label={`${Math.round(activeDay.totalCalories)} kcal`} size="small" sx={{ bgcolor: 'rgba(236,72,153,0.08)', color: 'secondary.main', fontWeight: 600 }} />
+                  <Chip label={`P: ${Math.round(activeDay.totalProtein)}g`} size="small" sx={{ bgcolor: 'rgba(79,70,229,0.08)', color: 'primary.main', fontWeight: 600 }} />
+                  <Chip label={`C: ${Math.round(activeDay.totalCarbs)}g`} size="small" sx={{ bgcolor: 'rgba(249,115,22,0.08)', color: 'warning.main', fontWeight: 600 }} />
+                  <Chip label={`F: ${Math.round(activeDay.totalFat)}g`} size="small" sx={{ bgcolor: 'rgba(236,72,153,0.08)', color: 'secondary.main', fontWeight: 600 }} />
+                  <Chip label={`${dayMeals.length} meals`} size="small" sx={{ bgcolor: 'rgba(16,185,129,0.08)', color: 'success.main', fontWeight: 600 }} />
                 </Box>
               )}
 

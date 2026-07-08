@@ -1,6 +1,7 @@
 package com.fitness.userservice.Controller;
 
 import com.fitness.userservice.Controller.Dto.RegisterRequest;
+import com.fitness.userservice.Controller.Dto.LoginRequest;
 import com.fitness.userservice.Dto.UserResponse;
 import com.fitness.userservice.Service.UserService;
 import jakarta.validation.Valid;
@@ -20,6 +21,11 @@ public class UserController {
 @PostMapping("/register")
     public ResponseEntity<UserResponse> addUserProfile(@Valid @RequestBody RegisterRequest request){
         return ResponseEntity.ok(userService.addUserProfile(request));
+    }
+
+@PostMapping("/login")
+    public ResponseEntity<UserResponse> login(@Valid @RequestBody LoginRequest request){
+        return ResponseEntity.ok(userService.login(request));
     }
 
 

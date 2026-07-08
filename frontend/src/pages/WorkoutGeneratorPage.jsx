@@ -584,7 +584,7 @@ export default function WorkoutGeneratorPage() {
                             <Box sx={{ display: 'flex', gap: 3, flexWrap: 'wrap' }}>
                               {[
                                 { label: 'Sets', value: exercise.sets, color: '#F97316' },
-                                { label: 'Reps', value: exercise.reps, color: '#A78BFA' },
+                                { label: 'Reps', value: exercise.reps, color: '#4F46E5' },
                                 { label: 'Rest', value: `${exercise.restSeconds || 60}s`, color: '#3B82F6' },
                                 { label: 'RPE', value: exercise.rpe || '-', color: '#EC4899' },
                               ].map((s) => (

@@ -1,258 +1,371 @@
-# 🏋️ FitTrack — AI-Powered Fitness Microservices
+<div align="center">
+  <img src="docs/IMAGES/logo.svg" width="120" alt="FitTrack Microservices logo" />
+  <h1>FitTrack Microservices</h1>
+  <p><strong>AI-assisted fitness tracking, meal planning, workout generation, and activity recommendations built with Spring Boot microservices and React.</strong></p>
 
-A full-stack fitness tracking platform built with **Spring Cloud microservices**, **Google OAuth2**, **RabbitMQ**, **MongoDB**, **MySQL**, and a bold **React + Material UI** frontend.
+  <p>
+    <img alt="Java" src="https://img.shields.io/badge/Java-17-orange?logo=openjdk&logoColor=white">
+    <img alt="Spring Boot" src="https://img.shields.io/badge/Spring%20Boot-4.0.1-6DB33F?logo=springboot&logoColor=white">
+    <img alt="React" src="https://img.shields.io/badge/React-19-61DAFB?logo=react&logoColor=111">
+    <img alt="Docker" src="https://img.shields.io/badge/Docker-ready-2496ED?logo=docker&logoColor=white">
+    <img alt="Kubernetes" src="https://img.shields.io/badge/Kubernetes-manifests-326CE5?logo=kubernetes&logoColor=white">
+    <img alt="License" src="https://img.shields.io/badge/License-not%20declared-lightgrey">
+  </p>
 
-## Architecture
+  <img src="docs/IMAGES/hero-banner.png" alt="FitTrack application hero banner" width="900" />
+</div>
 
+## Table Of Contents
+
+- [Project Overview](#project-overview)
+- [Why This Project Exists](#why-this-project-exists)
+- [Key Features](#key-features)
+- [Screenshots](#screenshots)
+- [Architecture Overview](#architecture-overview)
+- [Technology Stack](#technology-stack)
+- [Folder Structure](#folder-structure)
+- [Installation Guide](#installation-guide)
+- [Local Development](#local-development)
+- [Docker Deployment](#docker-deployment)
+- [Docker Compose](#docker-compose)
+- [Kubernetes Deployment](#kubernetes-deployment)
+- [Environment Variables](#environment-variables)
+- [API Overview](#api-overview)
+- [Database Overview](#database-overview)
+- [Security Features](#security-features)
+- [Monitoring And Logging](#monitoring-and-logging)
+- [AI Workflow](#ai-workflow)
+- [Future Roadmap](#future-roadmap)
+- [Contributing](#contributing)
+- [License](#license)
+- [Contact](#contact)
+
+## Project Overview
+
+FitTrack Microservices is a full-stack fitness platform split into independent services for authentication, user profiles, activity tracking, AI recommendations, AI meal plans, and AI workout plans. The frontend is a React and Vite single-page application served by nginx in production. Backend traffic flows through a Spring Cloud Gateway that authenticates users, injects a trusted `X-User-ID` header, and routes requests to downstream services.
+
+The repository includes Dockerfiles for each service, a Docker Compose deployment, Kubernetes manifests for Minikube-style deployments, k6 smoke/load scripts, and real UI screenshots captured from the frontend.
+
+## Why This Project Exists
+
+This project demonstrates how a fitness product can be decomposed into deployable services while still supporting a cohesive user experience:
+
+| Goal | Implementation |
+| --- | --- |
+| Separate user, activity, and AI responsibilities | Spring Boot services with independent data models |
+| Keep browser auth safer | Gateway-issued httpOnly `app_jwt` cookie |
+| Support async AI processing | RabbitMQ queues for activity recommendations, meal plans, and workout plans |
+| Use fit-for-purpose storage | MySQL for users, MongoDB for activity and generated AI documents |
+| Ship deployable artifacts | Docker Compose and Kubernetes manifests |
+
+## Key Features
+
+- Email/password signup and login through the gateway.
+- Google ID-token exchange flow that upserts a user profile and sets an httpOnly session cookie.
+- Activity logging with duration, calories, start time, type, and flexible metrics.
+- AI recommendations generated from activity events through RabbitMQ.
+- AI meal-plan generation with async `PENDING`, `COMPLETED`, and `FAILED` lifecycle states.
+- AI workout-plan generation with exercise details, equipment, experience level, and location preferences.
+- Protected React dashboard, activity history, recommendations, meal planner, workout generator, and videos pages.
+- nginx proxying for `/api` in containerized frontend deployments.
+- Docker Compose and Kubernetes service definitions for the microservice stack.
+
+## Screenshots
+
+| Login | Dashboard |
+| --- | --- |
+| <img src="docs/IMAGES/login.png" alt="Login screen" width="420"> | <img src="docs/IMAGES/dashboard.png" alt="Dashboard screen" width="420"> |
+
+| Activities | Recommendations |
+| --- | --- |
+| <img src="docs/IMAGES/activities.png" alt="Activities screen" width="420"> | <img src="docs/IMAGES/recommendations.png" alt="Recommendations screen" width="420"> |
+
+| Meal Planner | Workout Generator |
+| --- | --- |
+| <img src="docs/IMAGES/mealplanner.png" alt="Meal planner screen" width="420"> | <img src="docs/IMAGES/workoutgenerator.png" alt="Workout generator screen" width="420"> |
+
+## Architecture Overview
+
+```mermaid
+flowchart LR
+  Browser[React SPA] --> Nginx[nginx frontend]
+  Nginx --> Gateway[Spring Cloud Gateway]
+  Gateway --> UserService[User Service]
+  Gateway --> ActivityService[Activity Service]
+  Gateway --> AiService[AI Recommendation Service]
+  Gateway --> AiHelper[AI Helper Service]
+  UserService --> MySQL[(MySQL)]
+  ActivityService --> Mongo[(MongoDB)]
+  AiService --> Mongo
+  AiHelper --> Mongo
+  ActivityService --> Rabbit[(RabbitMQ)]
+  Rabbit --> AiService
+  AiHelper --> Rabbit
+  Rabbit --> AiHelper
+  AiService --> Groq[Groq Chat Completions API]
+  AiHelper --> Groq
+  Config[Config Server] --> UserService
+  Config --> ActivityService
+  Config --> AiService
+  Config --> AiHelper
+  Config --> Gateway
+  Eureka[Eureka] --> Gateway
+  Eureka --> UserService
+  Eureka --> ActivityService
+  Eureka --> AiService
+  Eureka --> AiHelper
 ```
-                          ┌──────────────────────────────────┐
-  Frontend (:5173)        │  GATEWAY (:8080)                 │
-  React + MUI ──proxy──►  │  Google OAuth2 token-exchange    │
-                          │  App JWT (httpOnly cookie)        │
-                          │  Routes → backend services        │
-                          └────────┬───────┬─────────┬──────┘
-                                   │       │         │
-                    ┌──────────────▼──┐   ┌──▼───────────────┐
-                    │ USER-SERVICE    │   │ ACTIVITY-SERVICE │
-                    │ :8081  MySQL    │   │ :8082  MongoDB   │
-                    └───────────────┬┘   └──────┬───────────┘
-                            validate│             │ publish
-                    ┌───────────────▼─────────────▼──┐
-                    │      RABBITMQ (:5672)          │
-                    │  fitness.exchange → activity.queue
-                    └───────────────▲────────────────┘
-                                    │ consume
-                    ┌───────────────┴────────────────┐
-                    │ AI-SERVICE                      │
-                    │ :8083  MongoDB + Groq LLM        │
-                    └─────────────────────────────────┘
 
-    Discovery:  EUREKA :8761          Config:  CONFIG-SERVER :8888
-```
+See [PROJECT_ARCHITECTURE.md](docs/PROJECT_ARCHITECTURE.md) and [SYSTEM_DESIGN.md](docs/SYSTEM_DESIGN.md) for deeper diagrams and request flows.
 
-## Tech Stack
+## Technology Stack
 
 | Layer | Technology |
-|-------|-----------|
-| Frontend | React 19, Vite, Material UI 6, MUI X Charts |
-| Gateway | Spring Cloud Gateway (WebFlux), Google ID-token verification, HS256 app JWT |
-| Auth | Google OAuth2 (token-exchange — Google ID token → app JWT in httpOnly cookie) |
-| User Service | Spring Boot 4.0.1, JPA, MySQL 8 |
-| Activity Service | Spring Boot 4.0.1, MongoDB, RabbitMQ producer |
-| AI Service | Spring Boot 4.0.1, MongoDB, RabbitMQ consumer, Groq API (gpt-oss-120b) |
-| Discovery | Netflix Eureka |
-| Config | Spring Cloud Config Server (native profile) |
-| Messaging | RabbitMQ (direct exchange) |
+| --- | --- |
+| Frontend | React 19, Vite 8, Material UI 9, Axios, React Router |
+| API gateway | Spring Cloud Gateway WebFlux, Spring Security, Nimbus JOSE JWT |
+| Backend services | Java 17, Spring Boot 4.0.1, Spring Cloud 2025.1.0 |
+| Persistence | MySQL through Spring Data JPA, MongoDB through Spring Data MongoDB |
+| Messaging | RabbitMQ direct exchanges and durable queues |
+| AI provider | Groq OpenAI-compatible chat completions endpoint |
+| Deployment | Docker, Docker Compose, nginx, Kubernetes manifests |
+| Testing utilities | Spring Boot test skeletons, k6 smoke and load scripts |
 
----
+## Folder Structure
 
-## Prerequisites (Local Dev)
+| Path | Purpose |
+| --- | --- |
+| `frontend/` | React/Vite SPA, nginx config, screenshot capture script, frontend Dockerfile |
+| `gateway/` | Spring Cloud Gateway, auth endpoints, cookie JWT, route definitions, CORS config |
+| `userservice/` | User registration, login, profile lookup, MySQL/JPA `users` table |
+| `activity-status/` | Activity tracking API, MongoDB `activities`, RabbitMQ publisher |
+| `aiservice/` | Activity recommendation consumer/API, MongoDB `recommendations`, Groq integration |
+| `Aihelper/` | Meal-plan and workout-plan generation APIs, queues, MongoDB documents |
+| `configserver/` | Spring Cloud Config Server with native YAML config files |
+| `eureka/` | Eureka service registry |
+| `kubernetes/` | Namespace, secrets example, ConfigMap, Deployments, Services, Ingress |
+| `k6/` | Smoke and load test scripts |
+| `docs/` | Architecture, API, database, deployment, security, workflow, and image assets |
 
-1. **Java 17+** — [Download JDK](https://adoptium.net/)
-2. **Node.js 18+** — [Download Node](https://nodejs.org/)
-3. **MySQL 8** — running on `localhost:3306`, create database:
-   ```sql
-   CREATE DATABASE user_fitness_db;
-   ```
-4. **MongoDB** — running on `localhost:27017` (default install is fine)
-5. **RabbitMQ** — running on `localhost:5672` (management UI at `http://localhost:15672`, guest/guest)
-   - [Windows installer](https://www.rabbitmq.com/install-windows.html) or use Docker:
-     ```bash
-     docker run -d --name rabbitmq -p 5672:5672 -p 15672:15672 rabbitmq:3-management
-     ```
-6. **Groq API key** — get one at [console.groq.com](https://console.groq.com/keys)
+## Installation Guide
 
----
+Prerequisites:
 
-## Quick Start
+- Java 17.
+- Maven wrapper support through each service's `mvnw` or `mvnw.cmd`.
+- Node.js 20 or newer for the frontend.
+- Docker and Docker Compose for container deployment.
+- External MySQL-compatible database and MongoDB connection if running the full backend.
+- RabbitMQ if running services outside Compose/Kubernetes.
 
-### 1. Set environment variables
-
-```bash
-# Set the Groq API key (the AI service needs this)
-export GROQ_API_KEY=gsk_your-key-here
-
-# (Optional) Override the app JWT secret for production
-export APP_JWT_SECRET=your-32-char-secret-here
-```
-
-> On Windows PowerShell: `$env:GROQ_API_KEY = "gsk_..."`
-
-### 2. Start backend services (in order)
-
-Open **6 terminals** (or use a tool like [tmux](https://github.com/tmux/tmux)):
+Clone and install frontend dependencies:
 
 ```bash
-# Terminal 1 — Eureka (service discovery)
-cd eureka && ./mvnw spring-boot:run
-
-# Terminal 2 — Config Server (centralized config)
-cd configserver && ./mvnw spring-boot:run
-
-# Terminal 3 — User Service
-cd userservice && ./mvnw spring-boot:run
-
-# Terminal 4 — Activity Service
-cd activity-status && ./mvnw spring-boot:run
-
-# Terminal 5 — AI Service
-cd aiservice && ./mvnw spring-boot:run
-
-# Terminal 6 — Gateway (API Gateway + Auth)
-cd gateway && ./mvnw spring-boot:run
+git clone <repository-url>
+cd fitness_web_microservices/frontend
+npm install
 ```
 
-**Wait ~30 seconds** after each service starts before starting the next (Eureka registration takes a moment).
+Build an individual Java service:
 
-### 3. Start the frontend
+```bash
+cd userservice
+./mvnw clean package
+```
+
+On Windows PowerShell:
+
+```powershell
+cd userservice
+.\mvnw.cmd clean package
+```
+
+## Local Development
+
+Start core backend services in dependency order:
+
+1. RabbitMQ.
+2. Eureka on `8761`.
+3. Config Server on `8888`.
+4. User Service on `8081`.
+5. Activity Service on `8082`.
+6. AI Service on `8083`.
+7. AI Helper on `8084`.
+8. Gateway on `8080`.
+9. Frontend on `5173`.
+
+Frontend development:
 
 ```bash
 cd frontend
-npm install
 npm run dev
 ```
 
-Open **http://localhost:5173** — you'll see the FitTrack login page with a "Sign in with Google" button.
+The Vite dev server proxies `/api` to `http://localhost:8080`.
 
----
+## Docker Deployment
 
-## API Endpoints
+Each Java service uses a multi-stage Dockerfile:
 
-### Auth (Gateway)
+- `maven:3.9-eclipse-temurin-17` builds the jar.
+- `eclipse-temurin:17-jre-alpine` runs the jar.
+- `curl` is installed for container health checks.
 
-| Method | Path | Description |
-|--------|------|-------------|
-| `POST` | `/api/auth/google` | Exchange Google ID token for app JWT (sets httpOnly cookie) |
-| `POST` | `/api/auth/logout` | Clear the app JWT cookie |
-| `GET` | `/api/auth/me` | Get current user profile from cookie |
+The frontend Dockerfile builds with `node:20-alpine` and serves the static bundle through `nginx:alpine`.
 
-### User Service (`/api/user`)
+## Docker Compose
 
-| Method | Path | Description |
-|--------|------|-------------|
-| `GET` | `/api/user/{userId}` | Get user profile |
-| `POST` | `/api/user/register` | Register/upsert user (called by gateway internally) |
-| `GET` | `/api/user/{userId}/validate` | Check if user exists |
+Start the published-image stack:
 
-### Activity Service (`/api/activity`)
-
-| Method | Path | Description |
-|--------|------|-------------|
-| `POST` | `/api/activity` | Log a new activity |
-| `GET` | `/api/activity` | Get all activities for current user |
-
-### AI / Recommendations (`/api/recommendation`)
-
-| Method | Path | Description |
-|--------|------|-------------|
-| `GET` | `/api/recommendation/user/{userId}` | Get all recommendations for a user |
-| `GET` | `/api/recommendation/activity/{activityId}` | Get recommendation for a specific activity |
-
----
-
-## How Auth Works (Token-Exchange Flow)
-
-```
-Browser               Gateway                    Google
-  │                      │                          │
-  │  "Sign in w/ Google" │                          │
-  │─────────────────────►│                          │
-  │  (Google ID token)   │                          │
-  │                      │  Verify ID token via     │
-  │                      │  Google's public JWKS    │
-  │                      │─────────────────────────►│
-  │                      │  ✓ Valid, issuer=Google  │
-  │                      │  ✓ Audience = our CID   │
-  │                      │◄─────────────────────────│
-  │                      │                           │
-  │                      │  Upsert user in MySQL     │
-  │                      │  Mint APP JWT (HS256)     │
-  │◄─────────────────────│                           │
-  │  Set-Cookie: app_jwt │                           │
-  │  (httpOnly, Secure)  │                           │
-  │                      │                           │
-  │  GET /api/activity   │                           │
-  │─────────────────────►│                           │
-  │  Cookie: app_jwt     │  Verify app JWT           │
-  │                      │  Inject X-User-ID header  │
-  │                      │  Route to ACTIVITY-SVC   │
-  │◄─────────────────────│                           │
-  │  { activities }      │                           │
+```bash
+docker compose up -d
 ```
 
-**Security properties:**
-- Google tokens are validated cryptographically (not sent to Google's servers on each request)
-- App JWT is stored in an httpOnly cookie — JavaScript cannot access it (XSS-safe)
-- Cookie uses `SameSite=Lax` to prevent CSRF
-- Microservices are stateless — they trust the gateway-injected `X-User-ID` header
-- No password is ever stored in plaintext or exposed in API responses
+Compose starts RabbitMQ, Eureka, Config Server, all backend services, the gateway, and the frontend. The frontend publishes port `80:80`; internal service ports are used inside the Compose network.
 
----
+See [DOCKER.md](docs/DOCKER.md) for service order, health checks, ports, and resource limits.
+
+## Kubernetes Deployment
+
+Kubernetes manifests are available under `kubernetes/` for the `fittrack` namespace. They include:
+
+- RabbitMQ Deployment and Service.
+- Eureka Deployment and Service.
+- Config Server Deployment and Service.
+- User, Activity, AI, AI Helper, Gateway, and Frontend Deployments and Services.
+- nginx ConfigMap for frontend `/api` proxying.
+- Secret example for database, OAuth, JWT, and AI keys.
+- Ingress for `fittrack.local`.
+
+See [KUBERNETES.md](docs/KUBERNETES.md) for deployment commands and manifest details.
 
 ## Environment Variables
 
-| Variable | Used By | Default | Description |
-|----------|---------|---------|-------------|
-| `GOOGLE_CLIENT_ID` | Gateway | (set in config) | Google OAuth2 Web Client ID |
-| `APP_JWT_SECRET` | Gateway | dev-only-... | HS256 secret for app JWT (>= 32 chars) |
-| `GROQ_API_KEY` | AI Service | (empty) | Groq API key for AI recommendations |
-| `MYSQL_PASSWORD` | User Service | (empty) | MySQL root password |
+| Variable | Used by | Purpose |
+| --- | --- | --- |
+| `PORT` | All Spring services | Overrides service port |
+| `CONFIG_HOST` | Spring services | Config Server host |
+| `EUREKA_HOST` | Spring services | Eureka host |
+| `USER_SERVICE_URL` | Gateway | User service route/upstream |
+| `ACTIVITY_SERVICE_URL` | Gateway | Activity service route/upstream |
+| `AI_SERVICE_URL` | Gateway | Recommendation service route/upstream |
+| `AIHELPER_SERVICE_URL` | Gateway | Meal/workout service route/upstream |
+| `RABBITMQ_HOST`, `RABBITMQ_PORT`, `RABBITMQ_USERNAME`, `RABBITMQ_PASSWORD` | Activity, AI, AI Helper | RabbitMQ connection |
+| `CORS_ALLOWED_ORIGINS` | Gateway | Comma-separated browser origins |
+| `SPRING_DATASOURCE_URL`, `DB_USERNAME`, `DB_PASSWORD` | Kubernetes secret example / deployment env | MySQL connection values |
+| `MONGODB_URI` | Kubernetes secret example / deployment env | MongoDB connection value |
+| `GOOGLE_CLIENT_ID`, `GOOGLE_CLIENT_SECRET` | Kubernetes secret example / Gateway env | Google auth configuration |
+| `APP_JWT_SECRET` | Kubernetes secret example / Gateway env | App JWT signing secret |
+| `GEN_AI_KEY` | Kubernetes secret example / AI services env | Groq API key |
 
----
+The checked-in Config Server YAML currently contains hardcoded database and Groq credentials. Treat those as compromised and rotate them before using this project outside a local demo.
 
-## Project Structure
+## API Overview
 
+| Service | Endpoint | Auth | Description |
+| --- | --- | --- | --- |
+| Gateway | `POST /api/auth/register` | Public | Email signup and app session creation |
+| Gateway | `POST /api/auth/login` | Public | Email login and app session creation |
+| Gateway | `POST /api/auth/google` | Public | Google ID-token exchange and app session creation |
+| Gateway | `POST /api/auth/logout` | Public | Clears the session cookie |
+| Gateway | `GET /api/auth/me` | Cookie | Returns current user |
+| User Service | `GET /api/user/{userId}` | Gateway-routed | Returns a user profile |
+| User Service | `GET /api/user/{userId}/validate` | Gateway-routed/internal | Checks whether user ID exists |
+| Activity Service | `POST /api/activity` | Cookie through gateway | Creates an activity and publishes a RabbitMQ event |
+| Activity Service | `GET /api/activity` | Cookie through gateway | Lists activities for `X-User-ID` |
+| AI Service | `GET /api/recommendation/user/{userId}` | Cookie through gateway | Lists recommendations for a user |
+| AI Service | `GET /api/recommendation/activity/{activityId}` | Cookie through gateway | Gets recommendation for one activity |
+| AI Helper | `POST /api/mealplan` | Cookie through gateway | Starts async meal plan generation |
+| AI Helper | `GET /api/mealplan/{id}` | Cookie through gateway | Fetches one meal plan |
+| AI Helper | `GET /api/mealplan/user/{userId}` | Cookie through gateway | Lists meal plans by user |
+| AI Helper | `POST /api/mealplan/{planId}/day/{dayIndex}/meal` | Cookie through gateway | Adds a custom meal to a day |
+| AI Helper | `POST /api/workoutplan` | Cookie through gateway | Starts async workout plan generation |
+| AI Helper | `GET /api/workoutplan/{id}` | Cookie through gateway | Fetches one workout plan |
+| AI Helper | `GET /api/workoutplan/user/{userId}` | Cookie through gateway | Lists workout plans by user |
+
+Full request and response shapes are documented in [API_DOCUMENTATION.md](docs/API_DOCUMENTATION.md).
+
+## Database Overview
+
+| Store | Collections/Tables |
+| --- | --- |
+| MySQL | `users` |
+| MongoDB | `activities`, `recommendations`, `meal_plans`, `workout_plans` |
+
+Repository query methods define lookups by `email`, `userId`, and `activityId`. No explicit Mongo indexes are declared in the code. The `users.email` column is unique through JPA annotations.
+
+See [DATABASE_DESIGN.md](docs/DATABASE_DESIGN.md).
+
+## Security Features
+
+- Gateway-owned authentication endpoints.
+- httpOnly session cookie named by `app.security.cookie-name`.
+- JWT verification before protected routes.
+- Trusted `X-User-ID` header injection by the gateway.
+- CORS configured with explicit allowed origins and credentials.
+- Password omitted from user API responses.
+- Google ID token verification through gateway service code.
+
+Current security concerns are documented in [SECURITY.md](docs/SECURITY.md), including hardcoded secrets and plaintext password storage in the current implementation.
+
+## Monitoring And Logging
+
+- Compose and Kubernetes health checks call `/actuator/health` where configured.
+- Services use container logs; several services use Lombok `@Slf4j`.
+- RabbitMQ management port `15672` exists in Kubernetes service definitions but is not published by Compose.
+- k6 scripts provide smoke and load testing from outside the app.
+- No centralized tracing, metrics dashboard, or log aggregation stack is present in the repository.
+
+## AI Workflow
+
+```mermaid
+sequenceDiagram
+  participant UI as React UI
+  participant GW as Gateway
+  participant Activity as Activity Service
+  participant Rabbit as RabbitMQ
+  participant AI as AI Service
+  participant Groq as Groq API
+  participant Mongo as MongoDB
+
+  UI->>GW: POST /api/activity
+  GW->>Activity: Adds X-User-ID and routes request
+  Activity->>Mongo: Save activity
+  Activity->>Rabbit: Publish activity JSON
+  Rabbit->>AI: Consume activity.queue
+  AI->>Groq: Request recommendation
+  AI->>Mongo: Save recommendation
+  UI->>GW: GET /api/recommendation/user/{userId}
+  GW->>AI: Route request
+  AI->>Mongo: Query recommendations
+  AI-->>UI: Recommendation list
 ```
-fitness_web_microservices/
-├── eureka/                  # Service discovery (:8761)
-├── configserver/            # Centralized config (:8888)
-│   └── config/              # Per-service YAML configs
-├── gateway/                 # API Gateway + Auth (:8080)
-│   └── auth/                # Google OAuth2, JWT service, auth filter
-├── userservice/             # User profiles (:8081)
-├── activity-status/         # Workout tracking (:8082)
-├── aiservice/               # AI recommendations (:8083)
-├── frontend/                # React + Vite + MUI (:5173)
-│   └── src/
-│       ├── api/             # Axios client
-│       ├── auth/            # Auth context + Google GIS button
-│       ├── components/      # Navbar, StatCard
-│       ├── pages/           # Login, Dashboard, LogActivity, History, Recommendations
-│       └── theme/           # MUI dark gradient theme
-├── docker-compose.yml       # One-command deploy (MySQL + Mongo + RabbitMQ + all services)
-├── .env.example             # Environment variable template
-└── README.md                 # This file
-```
 
----
+See [WORKFLOW.md](docs/WORKFLOW.md) for meal-plan, workout-plan, and user workflows.
 
-## Docker Compose (Production-Ready Deploy)
+## Future Roadmap
 
-For a full deploy with Docker:
+- Move all secrets out of checked-in Config Server YAML and rotate exposed credentials.
+- Add `.env.example` matching the deployment scripts.
+- Hash user passwords before storage.
+- Add automated OpenAPI generation or contract tests.
+- Add explicit Mongo indexes for high-cardinality query fields.
+- Add centralized observability with metrics, tracing, and structured log aggregation.
+- Add CI for frontend lint/build and Java service tests.
+- Add production-ready Kubernetes storage, autoscaling, network policies, and TLS ingress.
 
-```bash
-# Copy and fill in environment variables
-cp .env.example .env
-# Edit .env with your real values
+## Contributing
 
-# Start everything
-docker compose up --build -d
-```
+1. Fork the repository.
+2. Create a branch for your change.
+3. Keep application logic changes separate from documentation-only changes.
+4. Run the relevant frontend or service tests before opening a pull request.
+5. Document any new endpoint, environment variable, queue, or database field.
 
-This starts MySQL, MongoDB, RabbitMQ, all 6 Spring services, and the React frontend.
+## License
 
----
+No license file is present in the repository. Until a license is added, usage rights are not explicitly granted. Add a `LICENSE` file before distributing this as an open-source project.
 
-## Troubleshooting
+## Contact
 
-| Issue | Fix |
-|-------|-----|
-| Gateway 401 on every request | Cookie not set — check that `GROQ_API_KEY` is set and services are running |
-| User-service won't start | MySQL not running or `user_fitness_db` database doesn't exist |
-| Activity-service won't start | MongoDB not running on `localhost:27017` |
-| AI recommendations empty | Check `aiservice` logs — Groq API key may be invalid or RabbitMQ not running |
-| Frontend CORS errors | Ensure gateway is running on `:8080` and Vite proxy is configured |
-| Eureka shows no services | Wait 30s after startup; check each service's logs for registration errors |
-#   f i t t r a k  
- #   f i t t r a k  
- 
+No maintainer contact information is declared in the repository. Add maintainer details here when the project owner is ready to publish them.

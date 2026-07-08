@@ -214,6 +214,7 @@ services:
       - PORT=8080
       - CONFIG_SERVER_URL=http://configserver:8888
       - EUREKA_URL=http://eureka:8761/eureka/
+      - USER_SERVICE_URL=http://userservice:8081
       - GOOGLE_CLIENT_ID=${GOOGLE_CLIENT_ID}
       - APP_JWT_SECRET=${APP_JWT_SECRET}
     healthcheck:

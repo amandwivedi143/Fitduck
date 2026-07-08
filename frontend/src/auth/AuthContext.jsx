@@ -33,6 +33,25 @@ export function AuthProvider({ children }) {
     return res.data.user;
   }, []);
 
+  const login = useCallback(async ({ email, password }) => {
+    const res = await api.post('/auth/login', { email, password });
+    setUser(res.data.user);
+    return res.data.user;
+  }, []);
+
+  const signup = useCallback(async ({
+    email, password, firstName, lastName,
+  }) => {
+    const res = await api.post('/auth/register', {
+      email,
+      password,
+      firstName,
+      lastName,
+    });
+    setUser(res.data.user);
+    return res.data.user;
+  }, []);
+
   const logout = useCallback(async () => {
     try {
       await api.post('/auth/logout');
@@ -42,7 +61,9 @@ export function AuthProvider({ children }) {
   }, []);
 
   return (
-    <AuthContext.Provider value={{ user, loading, loginWithGoogle, logout }}>
+    <AuthContext.Provider value={{
+      user, loading, loginWithGoogle, login, signup, logout,
+    }}>
       {children}
     </AuthContext.Provider>
   );

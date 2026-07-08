@@ -17,7 +17,7 @@ public class User {
     private  String email;
     @Column(name = "key_clock_id")
     private String keyClockId;
-    @Column(nullable = false)
+    @Column(nullable = true)
     private String password;
     private String firstName;
     private String lastName;

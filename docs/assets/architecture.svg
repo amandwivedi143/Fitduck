@@ -1,0 +1,111 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 720" font-family="Segoe UI, system-ui, sans-serif">
+  <defs>
+    <linearGradient id="bg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#0F172A"/>
+      <stop offset="100%" stop-color="#1E1B4B"/>
+    </linearGradient>
+    <linearGradient id="indigo" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#4F46E5"/>
+      <stop offset="100%" stop-color="#818CF8"/>
+    </linearGradient>
+    <linearGradient id="pink" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#EC4899"/>
+      <stop offset="100%" stop-color="#F472B6"/>
+    </linearGradient>
+    <linearGradient id="orange" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#F97316"/>
+      <stop offset="100%" stop-color="#FDBA74"/>
+    </linearGradient>
+    <filter id="glow">
+      <feGaussianBlur stdDeviation="4" result="blur"/>
+      <feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge>
+    </filter>
+    <style>
+      .box { fill: rgba(255,255,255,0.08); stroke: rgba(255,255,255,0.25); stroke-width: 2; rx: 14; }
+      .title { fill: #F8FAFC; font-size: 22px; font-weight: 700; }
+      .label { fill: #E2E8F0; font-size: 13px; font-weight: 600; }
+      .sub { fill: #94A3B8; font-size: 11px; }
+      .pulse { animation: pulse 2s ease-in-out infinite; }
+      .flow { stroke: #38BDF8; stroke-width: 2.5; fill: none; stroke-dasharray: 8 6; animation: dash 1.2s linear infinite; }
+      @keyframes dash { to { stroke-dashoffset: -28; } }
+      @keyframes pulse { 0%,100% { opacity: 1; } 50% { opacity: 0.55; } }
+    </style>
+  </defs>
+  <rect width="1200" height="720" fill="url(#bg)"/>
+  <text x="600" y="42" text-anchor="middle" class="title">FitTrack  Microservices Architecture</text>
+  <text x="600" y="64" text-anchor="middle" class="sub">React SPA � Gateway � 7 Spring Cloud Services � TiDB + MongoDB Atlas + RabbitMQ + Groq AI</text>
+
+  <!-- Frontend -->
+  <rect x="40" y="110" width="180" height="90" class="box" fill="url(#pink)"/>
+  <text x="130" y="145" text-anchor="middle" class="label" fill="#fff">Frontend</text>
+  <text x="130" y="168" text-anchor="middle" class="sub" fill="#FCE7F3">React 19 + MUI 9</text>
+  <text x="130" y="186" text-anchor="middle" class="sub" fill="#FCE7F3">nginx :80</text>
+
+  <!-- Gateway -->
+  <rect x="280" y="110" width="200" height="90" class="box" fill="url(#indigo)"/>
+  <text x="380" y="145" text-anchor="middle" class="label" fill="#fff">API Gateway</text>
+  <text x="380" y="168" text-anchor="middle" class="sub" fill="#E0E7FF">OAuth2 + JWT Cookie</text>
+  <text x="380" y="186" text-anchor="middle" class="sub" fill="#E0E7FF">:8080</text>
+
+  <!-- Services row -->
+  <rect x="40" y="280" width="150" height="80" class="box"/>
+  <text x="115" y="310" text-anchor="middle" class="label">User Service</text>
+  <text x="115" y="330" text-anchor="middle" class="sub">:8081 � JPA</text>
+  <text x="115" y="348" text-anchor="middle" class="sub">TiDB / MySQL</text>
+
+  <rect x="210" y="280" width="150" height="80" class="box"/>
+  <text x="285" y="310" text-anchor="middle" class="label">Activity</text>
+  <text x="285" y="330" text-anchor="middle" class="sub">:8082 � MongoDB</text>
+  <text x="285" y="348" text-anchor="middle" class="sub">RabbitMQ producer</text>
+
+  <rect x="380" y="280" width="150" height="80" class="box"/>
+  <text x="455" y="310" text-anchor="middle" class="label">AI Service</text>
+  <text x="455" y="330" text-anchor="middle" class="sub">:8083 � Groq LLM</text>
+  <text x="455" y="348" text-anchor="middle" class="sub">RabbitMQ consumer</text>
+
+  <rect x="550" y="280" width="150" height="80" class="box"/>
+  <text x="625" y="310" text-anchor="middle" class="label">AI Helper</text>
+  <text x="625" y="330" text-anchor="middle" class="sub">:8084 � Meal/Workout</text>
+  <text x="625" y="348" text-anchor="middle" class="sub">Async generation</text>
+
+  <!-- Infra -->
+  <rect x="760" y="280" width="140" height="80" class="box"/>
+  <text x="830" y="310" text-anchor="middle" class="label">Eureka</text>
+  <text x="830" y="330" text-anchor="middle" class="sub">:8761</text>
+  <text x="830" y="348" text-anchor="middle" class="sub">Discovery</text>
+
+  <rect x="920" y="280" width="140" height="80" class="box"/>
+  <text x="990" y="310" text-anchor="middle" class="label">Config Server</text>
+  <text x="990" y="330" text-anchor="middle" class="sub">:8888</text>
+  <text x="990" y="348" text-anchor="middle" class="sub">Native YAML</text>
+
+  <rect x="1080" y="280" width="100" height="80" class="box"/>
+  <text x="1130" y="310" text-anchor="middle" class="label">RabbitMQ</text>
+  <text x="1130" y="330" text-anchor="middle" class="sub">:5672</text>
+
+  <!-- Data layer -->
+  <rect x="120" y="450" width="200" height="70" class="box" fill="url(#orange)"/>
+  <text x="220" y="482" text-anchor="middle" class="label" fill="#fff">TiDB Cloud / MySQL</text>
+  <text x="220" y="502" text-anchor="middle" class="sub" fill="#FFEDD5">users table</text>
+
+  <rect x="380" y="450" width="220" height="70" class="box" fill="url(#orange)"/>
+  <text x="490" y="482" text-anchor="middle" class="label" fill="#fff">MongoDB Atlas</text>
+  <text x="490" y="502" text-anchor="middle" class="sub" fill="#FFEDD5">activities � recommendations � plans</text>
+
+  <rect x="680" y="450" width="180" height="70" class="box pulse" fill="url(#indigo)"/>
+  <text x="770" y="482" text-anchor="middle" class="label" fill="#fff">Groq API</text>
+  <text x="770" y="502" text-anchor="middle" class="sub" fill="#E0E7FF">gpt-oss-120b</text>
+
+  <!-- Animated flows -->
+  <path d="M 220 155 L 280 155" class="flow"/>
+  <path d="M 380 200 L 115 280" class="flow" style="animation-delay:.2s"/>
+  <path d="M 380 200 L 285 280" class="flow" style="animation-delay:.4s"/>
+  <path d="M 380 200 L 455 280" class="flow" style="animation-delay:.6s"/>
+  <path d="M 380 200 L 625 280" class="flow" style="animation-delay:.8s"/>
+  <path d="M 285 360 L 455 360 L 625 360" class="flow" style="stroke:#A78BFA"/>
+  <path d="M 115 360 L 220 450" class="flow" style="stroke:#FB923C"/>
+  <path d="M 455 360 L 490 450" class="flow" style="stroke:#FB923C"/>
+  <path d="M 625 360 L 770 450" class="flow" style="stroke:#34D399"/>
+
+  <text x="600" y="600" text-anchor="middle" class="sub">Docker Compose (EC2) � Kubernetes (Minikube) � k6 load tested @ 1,000 concurrent users</text>
+</svg>

@@ -1,0 +1,12 @@
+<svg width="240" height="240" viewBox="0 0 240 240" fill="none" xmlns="http://www.w3.org/2000/svg" role="img" aria-labelledby="title desc">
+  <title id="title">FitTrack Microservices Logo</title>
+  <desc id="desc">A fitness heartbeat and connected microservice nodes inside a rounded square.</desc>
+  <rect width="240" height="240" rx="48" fill="#101828"/>
+  <circle cx="120" cy="120" r="74" fill="#0EA5E9" opacity="0.16"/>
+  <path d="M58 126H83L96 92L119 154L136 112L148 126H182" stroke="#2DD4BF" stroke-width="12" stroke-linecap="round" stroke-linejoin="round"/>
+  <circle cx="58" cy="126" r="13" fill="#38BDF8"/>
+  <circle cx="182" cy="126" r="13" fill="#38BDF8"/>
+  <circle cx="120" cy="154" r="15" fill="#F97316"/>
+  <path d="M78 55L162 55" stroke="#F8FAFC" stroke-width="10" stroke-linecap="round" opacity="0.9"/>
+  <path d="M78 185L162 185" stroke="#F8FAFC" stroke-width="10" stroke-linecap="round" opacity="0.9"/>
+</svg>

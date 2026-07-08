@@ -8,9 +8,9 @@
 body {
   margin: 0;
   padding: 0;
-  /* Dark base matching the MUI theme background; MUI CssBaseline will refine. */
-  background: #0F0B1A;
-  color: #F8FAFC;
+  /* Light base matching the MUI theme background; MUI CssBaseline will refine. */
+  background: #F8FAFC;
+  color: #0F172A;
   font-family: 'Poppins', 'Roboto', 'Helvetica', 'Arial', sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
@@ -19,5 +19,3 @@ body {
 #root {
   min-height: 100vh;
 }
-
-/* Remove Vite default App.css reference from the build awareness */

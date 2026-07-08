@@ -2,10 +2,13 @@ package com.fitness.gateway.user;
 
 import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
+import com.fitness.gateway.auth.dto.LoginRequest;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.client.WebClient;
+import org.springframework.web.reactive.function.client.WebClientRequestException;
 import org.springframework.web.reactive.function.client.WebClientResponseException;
+import org.springframework.web.server.ResponseStatusException;
 import reactor.core.publisher.Mono;
 
 @Service
@@ -41,11 +44,35 @@ log.info("Calling User Registration API for email :{}",registerRequest.getEmail(
                .bodyToMono(UserResponse.class)
                .onErrorResume(WebClientResponseException.class, e -> {
                    if (e.getStatusCode() == HttpStatus.BAD_REQUEST)
-                       return Mono.error(new RuntimeException("BAD_REQUEST: " + e.getMessage()));
+                       return Mono.error(new ResponseStatusException(HttpStatus.BAD_REQUEST, "Invalid signup request"));
                    else if (e.getStatusCode() == HttpStatus.INTERNAL_SERVER_ERROR)
                        return Mono.error(new RuntimeException("INTERNAL_SERVER_ERROR: " + e.getMessage()));
                    return Mono.error(new RuntimeException("Unexpected error: " + e.getMessage()));
-               });
+               })
+               .onErrorResume(WebClientRequestException.class, e ->
+                       Mono.error(new ResponseStatusException(
+                               HttpStatus.SERVICE_UNAVAILABLE,
+                               "User service is not reachable. Start userservice on port 8081.")));
+   }
+
+   public Mono<UserResponse> login(LoginRequest loginRequest) {
+       log.info("Calling User Login API for email :{}", loginRequest.getEmail());
+       return userServiceWebClient.post()
+               .uri("/api/user/login")
+               .bodyValue(loginRequest)
+               .retrieve()
+               .bodyToMono(UserResponse.class)
+               .onErrorResume(WebClientResponseException.class, e -> {
+                   if (e.getStatusCode() == HttpStatus.UNAUTHORIZED)
+                       return Mono.error(new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Invalid email or password"));
+                   else if (e.getStatusCode() == HttpStatus.BAD_REQUEST)
+                       return Mono.error(new ResponseStatusException(HttpStatus.BAD_REQUEST, "Invalid login request"));
+                   return Mono.error(new RuntimeException("Unexpected error: " + e.getMessage()));
+               })
+               .onErrorResume(WebClientRequestException.class, e ->
+                       Mono.error(new ResponseStatusException(
+                               HttpStatus.SERVICE_UNAVAILABLE,
+                               "User service is not reachable. Start userservice on port 8081.")));
    }
 
    /**

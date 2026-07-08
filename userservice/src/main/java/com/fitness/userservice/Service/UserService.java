@@ -1,10 +1,13 @@
 package com.fitness.userservice.Service;
 
+import com.fitness.userservice.Controller.Dto.LoginRequest;
 import com.fitness.userservice.Controller.Dto.RegisterRequest;
 import com.fitness.userservice.Dto.UserResponse;
 import com.fitness.userservice.Model.User;
 import com.fitness.userservice.Repository.Userrepository;
 import org.springframework.stereotype.Service;
+import org.springframework.web.server.ResponseStatusException;
+import org.springframework.http.HttpStatus;
 
 @Service
 public class UserService {
@@ -30,6 +33,13 @@ public class UserService {
         User saved = userRepo.findByEmail(request.getEmail())
                 .map(existing -> {
                     existing.setKeyClockId(request.getKeyClockId());
+                    // Only set password if the user doesn't already have one.
+                    // This prevents Google OAuth logins (which send a random UUID
+                    // as password) from overwriting a real email/password credential.
+                    if ((existing.getPassword() == null || existing.getPassword().isBlank())
+                            && request.getPassword() != null && !request.getPassword().isBlank()) {
+                        existing.setPassword(request.getPassword());
+                    }
                     existing.setFirstName(request.getFirstName());
                     existing.setLastName(request.getLastName());
                     return userRepo.save(existing);
@@ -44,6 +54,17 @@ public class UserService {
                     return userRepo.save(user);
                 });
         return toResponse(saved);
+    }
+
+    public UserResponse login(LoginRequest request) {
+        User user = userRepo.findByEmail(request.getEmail())
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Invalid email or password"));
+
+        if (user.getPassword() == null || !user.getPassword().equals(request.getPassword())) {
+            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Invalid email or password");
+        }
+
+        return toResponse(user);
     }
 
     public Boolean existByUserId(String userId) {

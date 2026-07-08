@@ -1,24 +1,18 @@
 import { useNavigate, useLocation } from 'react-router-dom';
 import {
-  Box, Typography, Avatar, IconButton, Divider,
-  Drawer, List, ListItemButton, ListItemIcon, ListItemText,
-  Paper, InputBase, Chip, useMediaQuery, useTheme,
+  Box, Typography, Avatar, Divider, Drawer, List, ListItemButton,
+  ListItemIcon, ListItemText, Paper, useMediaQuery, useTheme,
 } from '@mui/material';
 import {
   Dashboard as DashboardIcon,
-  Psychology,
   Restaurant,
   PlayCircle,
   FitnessCenter,
   TrendingUp,
   Forum,
   Person,
-  Search,
-  Notifications,
-  Settings,
   Home,
   SmartToy,
-  Leaderboard,
 } from '@mui/icons-material';
 import { useAuth } from '../auth/AuthContext';
 
@@ -58,7 +52,7 @@ export default function Sidebar() {
         display: 'flex',
         flexDirection: 'column',
         height: '100%',
-        background: 'linear-gradient(180deg, rgba(124,58,237,0.08) 0%, rgba(236,72,153,0.05) 100%)',
+        background: theme.palette.gradient?.sidebar || 'linear-gradient(180deg, rgba(79, 70, 229, 0.03) 0%, rgba(236, 72, 153, 0.02) 100%)',
       }}
     >
       {/* Brand */}
@@ -67,19 +61,19 @@ export default function Sidebar() {
           variant="h6"
           sx={{
             fontWeight: 800,
-            background: 'linear-gradient(135deg, #A78BFA 0%, #F472B6 50%, #FDBA74 100%)',
+            background: 'linear-gradient(135deg, #4F46E5 0%, #EC4899 50%, #F97316 100%)',
             WebkitBackgroundClip: 'text',
             WebkitTextFillColor: 'transparent',
           }}
         >
           FitTrack AI
         </Typography>
-        <Typography variant="caption" sx={{ color: 'text.secondary', letterSpacing: 2, textTransform: 'uppercase' }}>
+        <Typography variant="caption" sx={{ color: 'text.secondary', letterSpacing: 2, textTransform: 'uppercase', fontWeight: 600 }}>
           Elite Performance
         </Typography>
       </Box>
 
-      <Divider sx={{ borderColor: 'rgba(124,58,237,0.15)', mx: 2 }} />
+      <Divider sx={{ borderColor: 'divider', mx: 2 }} />
 
       {/* Nav items */}
       <List sx={{ flex: 1, px: 1.5, py: 1, overflow: 'auto' }}>
@@ -90,16 +84,16 @@ export default function Sidebar() {
               key={item.label}
               onClick={() => navigate(item.path)}
               sx={{
-                borderRadius: 2,
+                borderRadius: 3,
                 mb: 0.5,
                 py: 1.2,
                 pl: 2,
                 borderRight: isActive ? '3px solid' : '3px solid transparent',
-                borderColor: isActive ? 'secondary.main' : 'transparent',
-                color: isActive ? 'secondary.main' : 'text.secondary',
-                bgcolor: isActive ? 'rgba(236,72,153,0.08)' : 'transparent',
+                borderColor: isActive ? 'primary.main' : 'transparent',
+                color: isActive ? 'primary.main' : 'text.secondary',
+                bgcolor: isActive ? 'rgba(79, 70, 229, 0.05)' : 'transparent',
                 '&:hover': {
-                  bgcolor: isActive ? 'rgba(236,72,153,0.12)' : 'rgba(124,58,237,0.08)',
+                  bgcolor: isActive ? 'rgba(79, 70, 229, 0.08)' : 'rgba(79, 70, 229, 0.03)',
                   color: 'text.primary',
                 },
               }}
@@ -107,21 +101,21 @@ export default function Sidebar() {
               <ListItemIcon
                 sx={{
                   minWidth: 40,
-                  color: isActive ? 'secondary.main' : 'text.secondary',
+                  color: isActive ? 'primary.main' : 'text.secondary',
                 }}
               >
                 {item.icon}
               </ListItemIcon>
               <ListItemText
                 primary={item.label}
-                primaryTypographyProps={{ fontWeight: isActive ? 600 : 400, fontSize: '0.85rem' }}
+                primaryTypographyProps={{ fontWeight: isActive ? 600 : 500, fontSize: '0.85rem' }}
               />
             </ListItemButton>
           );
         })}
       </List>
 
-      <Divider sx={{ borderColor: 'rgba(124,58,237,0.15)', mx: 2 }} />
+      <Divider sx={{ borderColor: 'divider', mx: 2 }} />
 
       {/* User card */}
       <Box sx={{ px: 2, py: 2 }}>
@@ -131,9 +125,9 @@ export default function Sidebar() {
             alignItems: 'center',
             gap: 1.5,
             p: 1.5,
-            borderRadius: 2,
-            bgcolor: 'rgba(124,58,237,0.08)',
-            border: '1px solid rgba(124,58,237,0.15)',
+            borderRadius: 3,
+            bgcolor: 'rgba(79, 70, 229, 0.04)',
+            border: '1px solid rgba(79, 70, 229, 0.06)',
           }}
         >
           <Avatar
@@ -142,8 +136,10 @@ export default function Sidebar() {
             sx={{
               width: 40,
               height: 40,
-              bgcolor: 'rgba(236,72,153,0.2)',
+              bgcolor: 'rgba(79, 70, 229, 0.1)',
+              color: 'primary.main',
               fontSize: 14,
+              fontWeight: 700,
             }}
           >
             {user?.firstName?.[0] || '?'}
@@ -152,7 +148,7 @@ export default function Sidebar() {
             <Typography variant="body2" fontWeight={600} noWrap>
               {user?.firstName || 'User'}
             </Typography>
-            <Typography variant="caption" color="text.secondary">
+            <Typography variant="caption" color="text.secondary" fontWeight={500}>
               Pro Member
             </Typography>
           </Box>
@@ -173,9 +169,10 @@ export default function Sidebar() {
             '& .MuiDrawer-paper': {
               width: DRAWER_WIDTH,
               boxSizing: 'border-box',
-              borderRight: '1px solid rgba(124,58,237,0.15)',
+              borderRight: '1px solid',
+              borderColor: 'divider',
               bgcolor: 'background.paper',
-              boxShadow: '4px 0 24px rgba(124,58,237,0.08)',
+              boxShadow: '4px 0 20px rgba(79, 70, 229, 0.02)',
             },
           }}
         >
@@ -195,9 +192,11 @@ export default function Sidebar() {
             height: BOTTOM_NAV_HEIGHT,
             zIndex: theme.zIndex.appBar + 1,
             borderRadius: '16px 16px 0 0',
-            bgcolor: 'rgba(15,11,26,0.92)',
+            bgcolor: 'rgba(255, 255, 255, 0.85)',
             backdropFilter: 'blur(16px)',
-            borderTop: '1px solid rgba(124,58,237,0.2)',
+            borderTop: '1px solid',
+            borderColor: 'divider',
+            boxShadow: '0 -4px 20px rgba(79, 70, 229, 0.05)',
           }}
         >
           <Box
@@ -222,14 +221,14 @@ export default function Sidebar() {
                     justifyContent: 'center',
                     gap: 0.3,
                     cursor: 'pointer',
-                    color: isActive ? 'secondary.main' : 'text.secondary',
+                    color: isActive ? 'primary.main' : 'text.secondary',
                     transition: 'color 0.2s',
                     '&:hover': { color: 'text.primary' },
                     minWidth: 48,
                   }}
                 >
                   {item.icon}
-                  <Typography variant="caption" sx={{ fontSize: '0.65rem', fontWeight: isActive ? 600 : 400 }}>
+                  <Typography variant="caption" sx={{ fontSize: '0.65rem', fontWeight: isActive ? 600 : 500 }}>
                     {item.label}
                   </Typography>
                 </Box>

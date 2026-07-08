@@ -39,28 +39,29 @@ export default function AppLayout() {
           position="sticky"
           elevation={0}
           sx={{
-            bgcolor: 'rgba(15,11,26,0.75)',
+            bgcolor: 'rgba(255, 255, 255, 0.75)',
             backdropFilter: 'blur(12px)',
-            borderBottom: '1px solid rgba(124,58,237,0.12)',
+            borderBottom: '1px solid',
+            borderColor: 'divider',
           }}
         >
           <Toolbar sx={{ justifyContent: 'space-between', gap: 2 }}>
-            {/* Search bar */}
+            {/* Search bar — hidden on mobile to avoid squeezing layout */}
             <Paper
               elevation={0}
               sx={{
-                display: 'flex',
+                display: { xs: 'none', sm: 'flex' },
                 alignItems: 'center',
                 px: 2,
                 py: 0.5,
                 borderRadius: 8,
-                bgcolor: 'rgba(124,58,237,0.08)',
-                border: '1px solid rgba(124,58,237,0.15)',
+                bgcolor: 'rgba(79, 70, 229, 0.04)',
+                border: '1px solid rgba(79, 70, 229, 0.1)',
                 maxWidth: 360,
                 width: '100%',
                 '&:focus-within': {
                   borderColor: 'primary.main',
-                  bgcolor: 'rgba(124,58,237,0.12)',
+                  bgcolor: 'rgba(79, 70, 229, 0.08)',
                 },
               }}
             >
@@ -71,6 +72,21 @@ export default function AppLayout() {
               />
             </Paper>
 
+            {/* If on mobile, show brand title in top bar since sidebar is hidden */}
+            {!isDesktop && (
+              <Typography
+                variant="h6"
+                fontWeight={800}
+                sx={{
+                  background: 'linear-gradient(135deg, #4F46E5 0%, #EC4899 100%)',
+                  WebkitBackgroundClip: 'text',
+                  WebkitTextFillColor: 'transparent',
+                }}
+              >
+                FitTrack
+              </Typography>
+            )}
+
             {/* Right actions */}
             <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
               <IconButton size="small" sx={{ color: 'text.secondary' }}>
@@ -80,7 +96,7 @@ export default function AppLayout() {
                 <Settings fontSize="small" />
               </IconButton>
 
-              <Divider orientation="vertical" flexItem sx={{ mx: 1, borderColor: 'rgba(255,255,255,0.08)' }} />
+              <Divider orientation="vertical" flexItem sx={{ mx: 1, borderColor: 'divider' }} />
 
               <Box
                 sx={{
@@ -91,12 +107,12 @@ export default function AppLayout() {
                   px: 1,
                   py: 0.5,
                   borderRadius: 2,
-                  '&:hover': { bgcolor: 'rgba(124,58,237,0.1)' },
+                  '&:hover': { bgcolor: 'rgba(79, 70, 229, 0.08)' },
                   transition: 'background 0.2s',
                 }}
                 onClick={handleLogout}
               >
-                <Typography variant="body2" sx={{ color: 'text.primary', fontWeight: 500 }}>
+                <Typography variant="body2" sx={{ color: 'text.primary', fontWeight: 600 }}>
                   {user?.firstName} 💪
                 </Typography>
                 <Avatar
@@ -105,9 +121,11 @@ export default function AppLayout() {
                   sx={{
                     width: 36,
                     height: 36,
-                    bgcolor: 'linear-gradient(135deg, #7C3AED, #EC4899)',
+                    bgcolor: 'rgba(79, 70, 229, 0.1)',
+                    color: 'primary.main',
                     fontSize: 14,
-                    border: '1px solid rgba(236,72,153,0.3)',
+                    border: '1px solid rgba(79, 70, 229, 0.15)',
+                    fontWeight: 700,
                   }}
                 >
                   {user?.firstName?.[0] || '?'}

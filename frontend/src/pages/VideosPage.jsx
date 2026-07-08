@@ -350,8 +350,8 @@ export default function VideosPage() {
         sx={{
           flexShrink: 0,
           width: 300,
-          bgcolor: 'rgba(26,17,40,0.7)',
-          border: '1px solid rgba(124,58,237,0.15)',
+          bgcolor: 'background.paper',
+          border: '1px solid rgba(79, 70, 229, 0.06)',
           borderRadius: 4,
           cursor: 'pointer',
           scrollSnapAlign: 'start',
@@ -359,8 +359,8 @@ export default function VideosPage() {
           transition: 'transform 0.25s, box-shadow 0.25s, border-color 0.25s',
           '&:hover': {
             transform: 'translateY(-6px) scale(1.02)',
-            boxShadow: '0 12px 40px rgba(124,58,237,0.25)',
-            borderColor: 'rgba(236,72,153,0.4)',
+            boxShadow: '0 12px 40px rgba(79, 70, 229, 0.08)',
+            borderColor: 'rgba(79, 70, 229, 0.2)',
           },
         }}
       >
@@ -433,7 +433,7 @@ export default function VideosPage() {
             variant="subtitle2"
             sx={{
               fontWeight: 700,
-              color: '#fff',
+              color: 'text.primary',
               mb: 0.5,
               display: '-webkit-box',
               WebkitLineClamp: 2,
@@ -464,9 +464,9 @@ export default function VideosPage() {
                     toggleMyList(video);
                   }}
                   sx={{
-                    color: saved ? '#EC4899' : 'text.secondary',
-                    bgcolor: saved ? 'rgba(236,72,153,0.12)' : 'transparent',
-                    '&:hover': { color: '#EC4899', bgcolor: 'rgba(236,72,153,0.15)' },
+                    color: saved ? 'primary.main' : 'text.secondary',
+                    bgcolor: saved ? 'rgba(79, 70, 229, 0.08)' : 'transparent',
+                    '&:hover': { color: 'primary.main', bgcolor: 'rgba(79, 70, 229, 0.12)' },
                   }}
                 >
                   {saved ? <Check sx={{ fontSize: 18 }} /> : <Add sx={{ fontSize: 18 }} />}
@@ -479,7 +479,7 @@ export default function VideosPage() {
                     e.stopPropagation();
                     handleShare(video);
                   }}
-                  sx={{ color: 'text.secondary', '&:hover': { color: '#A78BFA', bgcolor: 'rgba(124,58,237,0.12)' } }}
+                  sx={{ color: 'text.secondary', '&:hover': { color: 'primary.main', bgcolor: 'rgba(79, 70, 229, 0.08)' } }}
                 >
                   <Share sx={{ fontSize: 18 }} />
                 </IconButton>
@@ -496,7 +496,7 @@ export default function VideosPage() {
   return (
     <Box sx={{ display: 'flex', flexDirection: 'column', gap: 0 }}>
       {/* ═══ Hero Section ═══ */}
-      <Box sx={{ position: 'relative', height: { xs: 420, md: 560 }, overflow: 'hidden', mb: -4 }}>
+      <Card sx={{ position: 'relative', height: { xs: 360, md: 460 }, overflow: 'hidden', mb: 4, borderRadius: 4 }}>
         {/* Background image */}
         <Box
           component="img"
@@ -511,7 +511,7 @@ export default function VideosPage() {
             position: 'absolute',
             inset: 0,
             background:
-              'linear-gradient(to top, #0F0B1A 0%, rgba(15,11,26,0.6) 40%, transparent 70%), linear-gradient(to right, #0F0B1A 0%, rgba(15,11,26,0.3) 50%, transparent 80%)',
+              'linear-gradient(to top, rgba(15, 11, 26, 0.85) 0%, rgba(15, 11, 26, 0.4) 60%, transparent 100%), linear-gradient(to right, rgba(15, 11, 26, 0.6) 0%, rgba(15, 11, 26, 0.1) 60%, transparent 100%)',
           }}
         />
 
@@ -626,7 +626,7 @@ export default function VideosPage() {
             </Button>
           </Box>
         </Box>
-      </Box>
+      </Card>
 
       {/* ═══ Filters + Category Rows ═══ */}
       <Box sx={{ px: { xs: 2, md: 4 }, pt: 2, position: 'relative', zIndex: 3 }}>
@@ -639,14 +639,14 @@ export default function VideosPage() {
               px: 2,
               py: 0.5,
               borderRadius: 3,
-              bgcolor: 'rgba(26,17,40,0.8)',
-              border: '1px solid rgba(124,58,237,0.2)',
+              bgcolor: 'background.paper',
+              border: '1px solid rgba(79, 70, 229, 0.12)',
               maxWidth: 480,
               flex: 1,
               minWidth: 240,
               '&:focus-within': {
-                borderColor: '#7C3AED',
-                boxShadow: '0 0 0 2px rgba(124,58,237,0.15)',
+                borderColor: '#4F46E5',
+                boxShadow: '0 0 0 2px rgba(79, 70, 229, 0.08)',
               },
             }}
           >
@@ -665,7 +665,7 @@ export default function VideosPage() {
           </Paper>
 
           {/* Row/Grid view toggle (disabled while searching) */}
-          <Box sx={{ display: 'flex', gap: 0.5, bgcolor: 'rgba(26,17,40,0.8)', borderRadius: 3, p: 0.5, border: '1px solid rgba(124,58,237,0.2)' }}>
+          <Box sx={{ display: 'flex', gap: 0.5, bgcolor: 'rgba(79, 70, 229, 0.04)', borderRadius: 3, p: 0.5, border: '1px solid rgba(79, 70, 229, 0.1)' }}>
             <Tooltip title="Rows view">
               <span>
                 <IconButton
@@ -733,13 +733,13 @@ export default function VideosPage() {
                       boxShadow: '0 2px 12px rgba(236,72,153,0.3)',
                     }
                   : {
-                      bgcolor: 'rgba(26,17,40,0.9)',
+                      bgcolor: 'background.paper',
                       color: 'text.secondary',
-                      border: '1px solid rgba(124,58,237,0.15)',
+                      border: '1px solid rgba(79, 70, 229, 0.1)',
                       '&:hover': {
-                        borderColor: 'rgba(236,72,153,0.4)',
+                        borderColor: 'rgba(79, 70, 229, 0.3)',
                         color: 'text.primary',
-                        bgcolor: 'rgba(124,58,237,0.1)',
+                        bgcolor: 'rgba(79, 70, 229, 0.04)',
                       },
                     }),
                 transition: 'all 0.2s',
@@ -751,7 +751,7 @@ export default function VideosPage() {
         {/* ═══ SEARCH RESULTS (flat grid) ═══ */}
         {isSearching && (
           <Box sx={{ pb: 4 }}>
-            <Typography variant="h6" sx={{ fontWeight: 700, color: '#fff', mb: 0.5 }}>
+            <Typography variant="h6" sx={{ fontWeight: 700, color: 'text.primary', mb: 0.5 }}>
               {searchResults.length > 0
                 ? `${searchResults.length} result${searchResults.length === 1 ? '' : 's'} for “${searchQuery}”`
                 : 'No results'}
@@ -790,7 +790,7 @@ export default function VideosPage() {
         {/* ═══ GRID VIEW (all filtered videos) ═══ */}
         {!isSearching && viewMode === 'grid' && (
           <Box sx={{ pb: 4 }}>
-            <Typography variant="h6" sx={{ fontWeight: 700, color: '#fff', mb: 3 }}>
+            <Typography variant="h6" sx={{ fontWeight: 700, color: 'text.primary', mb: 3 }}>
               All {activeFilter === 'All Workouts' ? 'Workouts' : activeFilter}{' '}
               <Typography component="span" variant="caption" sx={{ color: 'text.secondary' }}>
                 ({gridVideos.length})
@@ -830,7 +830,7 @@ export default function VideosPage() {
               <Box>
                 <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2.5 }}>
                   <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                    <Typography variant="h5" sx={{ fontWeight: 700, color: '#fff' }}>
+                    <Typography variant="h5" sx={{ fontWeight: 700, color: 'text.primary' }}>
                       My List
                     </Typography>
                     <Chip
@@ -885,7 +885,7 @@ export default function VideosPage() {
                 <Box key={cat.title}>
                   {/* Row header */}
                   <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2.5 }}>
-                    <Typography variant="h5" sx={{ fontWeight: 700, color: '#fff' }}>
+                    <Typography variant="h5" sx={{ fontWeight: 700, color: 'text.primary' }}>
                       {cat.title}
                     </Typography>
                     <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
@@ -893,7 +893,7 @@ export default function VideosPage() {
                       <IconButton
                         size="small"
                         onClick={() => scrollRow(cat.title, -1)}
-                        sx={{ color: 'text.secondary', bgcolor: 'rgba(26,17,40,0.6)', '&:hover': { color: '#EC4899' } }}
+                        sx={{ color: 'text.secondary', bgcolor: 'rgba(79, 70, 229, 0.05)', '&:hover': { color: 'primary.main', bgcolor: 'rgba(79, 70, 229, 0.1)' } }}
                       >
                         <ArrowForwardIos sx={{ fontSize: 14, transform: 'rotate(180deg)' }} />
                       </IconButton>

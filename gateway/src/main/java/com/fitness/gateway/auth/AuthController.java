@@ -3,6 +3,7 @@ package com.fitness.gateway.auth;
 import com.fitness.gateway.auth.dto.AuthUser;
 import com.fitness.gateway.auth.dto.GoogleClaims;
 import com.fitness.gateway.auth.dto.GoogleLoginRequest;
+import com.fitness.gateway.auth.dto.LoginRequest;
 import com.fitness.gateway.user.RegisterRequest;
 import com.fitness.gateway.user.UserResponse;
 import com.fitness.gateway.user.UserService;
@@ -41,6 +42,8 @@ public class AuthController {
     private String cookieName;
     @Value("${app.security.app-jwt-ttl-minutes:60}")
     private long ttlMinutes;
+    @Value("${app.security.cookie-secure:false}")
+    private boolean cookieSecure;
 
     @PostMapping("/google")
     public Mono<ResponseEntity<Map<String, AuthUser>>> loginWithGoogle(
@@ -53,7 +56,7 @@ public class AuthController {
             return Mono.error(new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Invalid Google token"));
         }
 
-        // 2) Map Google claims -> our RegisterRequest (providerId = Google 'sub').
+        // 2) Map Google claims to our RegisterRequest (providerId = Google 'sub').
         RegisterRequest register = new RegisterRequest();
         register.setEmail(google.getEmail());
         register.setKeyClockId(google.getSubject()); // column stays 'key_clock_id'; semantically the provider id
@@ -69,11 +72,26 @@ public class AuthController {
                 .doOnNext(entity -> log.info("Google login OK for user {}", entity.getBody().get("user").getUserId()));
     }
 
+    @PostMapping("/register")
+    public Mono<ResponseEntity<Map<String, AuthUser>>> register(@RequestBody RegisterRequest request) {
+        normalizeRegisterRequest(request);
+        return userService.registerUser(request)
+                .map(userResponse -> buildLoginResponse(userResponse, null))
+                .doOnNext(entity -> log.info("Email signup OK for user {}", entity.getBody().get("user").getUserId()));
+    }
+
+    @PostMapping("/login")
+    public Mono<ResponseEntity<Map<String, AuthUser>>> login(@RequestBody LoginRequest request) {
+        return userService.login(request)
+                .map(userResponse -> buildLoginResponse(userResponse, null))
+                .doOnNext(entity -> log.info("Email login OK for user {}", entity.getBody().get("user").getUserId()));
+    }
+
     @PostMapping("/logout")
     public Mono<ResponseEntity<Void>> logout() {
         ResponseCookie cleared = ResponseCookie.from(cookieName, "")
                 .httpOnly(true)
-                .secure(true)  // prod is HTTPS; flip to false for local dev
+                .secure(cookieSecure)
                 .sameSite("Lax")
                 .path("/")
                 .maxAge(Duration.ZERO)
@@ -106,13 +124,13 @@ public class AuthController {
                 .email(user.getEmail())
                 .firstName(user.getFirstName())
                 .lastName(user.getLastName())
-                .pictureUrl(google.getPicture())
+                .pictureUrl(google != null ? google.getPicture() : null)
                 .build();
 
         String jwt = appJwtService.mint(authUser);
         ResponseCookie cookie = ResponseCookie.from(cookieName, jwt)
                 .httpOnly(true)
-                .secure(true)  // prod is HTTPS; flip to false for local dev
+                .secure(cookieSecure)
                 .sameSite("Lax")
                 .path("/")
                 .maxAge(Duration.ofMinutes(ttlMinutes))
@@ -121,6 +139,12 @@ public class AuthController {
         return ResponseEntity.ok()
                 .header("Set-Cookie", cookie.toString())
                 .body(Map.of("user", authUser));
+    }
+
+    private void normalizeRegisterRequest(RegisterRequest request) {
+        if (request.getKeyClockId() == null || request.getKeyClockId().isBlank()) {
+            request.setKeyClockId("local:" + request.getEmail());
+        }
     }
 
     private AuthUser toAuthUser(UserResponse profile) {

@@ -8,27 +8,27 @@ spring:
         webflux:
           routes:
             - id: user-service
-              uri: http://userservice:8081
+              uri: ${USER_SERVICE_URL:http://localhost:8081}
               predicates:
                 - Path=/api/user/**
 
             - id: ai-service
-              uri: http://ai-service:8083
+              uri: ${AI_SERVICE_URL:http://localhost:8083}
               predicates:
                 - Path=/api/recommendation/**
 
             - id: aihelper-service
-              uri: http://aihelper:8084
+              uri: ${AIHELPER_SERVICE_URL:http://localhost:8084}
               predicates:
                 - Path=/api/mealplan/**
 
             - id: aihelper-workout-service
-              uri: http://aihelper:8084
+              uri: ${AIHELPER_SERVICE_URL:http://localhost:8084}
               predicates:
                 - Path=/api/workoutplan/**
 
             - id: activity-service
-              uri: http://activity-service:8082
+              uri: ${ACTIVITY_SERVICE_URL:http://localhost:8082}
               predicates:
                 - Path=/api/activity/**
 
@@ -39,7 +39,7 @@ server:
 eureka:
   client:
     service-url:
-      defaultZone: ${EUREKA_URL:http://eureka:8761/eureka/}
+      defaultZone: http://localhost:8761/eureka/
   instance:
     hostname: localhost
     prefer-ip-address: true
@@ -47,9 +47,13 @@ eureka:
 # --- Google OAuth2 (token-exchange flow) ---
 app:
   security:
-    google-client-id: ${GOOGLE_CLIENT_ID}
-    app-jwt-secret: ${APP_JWT_SECRET}
+    google-client-id: "775509038693-bshcj00biq64gdc5r09ilnk18serure0.apps.googleusercontent.com"
+    app-jwt-secret: dev-only-super-secret-change-me-in-production-please-32chars
     app-jwt-issuer: fitness-gateway
     app-jwt-ttl-minutes: 60
     cookie-name: app_jwt
     public-paths: /api/auth/**,/actuator/**
+    cookie-secure: false
+
+services:
+  user-service-url: ${USER_SERVICE_URL:http://localhost:8081}

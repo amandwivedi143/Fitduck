@@ -89,10 +89,11 @@ export default function ActivityHistoryPage() {
           component={Paper}
           elevation={0}
           sx={{
-            background: 'rgba(26,17,40,0.8)',
-            border: '1px solid rgba(124,58,237,0.2)',
+            background: 'background.paper',
+            border: '1px solid rgba(79, 70, 229, 0.08)',
             borderRadius: 3,
             overflow: 'hidden',
+            boxShadow: '0 10px 30px rgba(79, 70, 229, 0.03)',
           }}
         >
           <Table>
@@ -112,7 +113,7 @@ export default function ActivityHistoryPage() {
                   <TableRow
                     key={a.id}
                     sx={{
-                      '&:hover': { background: 'rgba(124,58,237,0.08)' },
+                      '&:hover': { background: 'rgba(79, 70, 229, 0.04)' },
                       '&:last-child td': { border: 0 },
                     }}
                   >

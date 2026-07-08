@@ -99,25 +99,26 @@ export default function Navbar() {
           PaperProps={{
             sx: {
               mt: 1.5,
-              background: 'rgba(26,17,40,0.95)',
+              background: 'rgba(255, 255, 255, 0.95)',
               backdropFilter: 'blur(12px)',
-              border: '1px solid rgba(124,58,237,0.3)',
+              border: '1px solid rgba(79, 70, 229, 0.1)',
               borderRadius: 3,
               minWidth: 200,
+              boxShadow: '0 10px 30px rgba(79, 70, 229, 0.08)',
             },
           }}
           transformOrigin={{ horizontal: 'right', vertical: 'top' }}
           anchorOrigin={{ horizontal: 'right', vertical: 'bottom' }}
         >
           <Box sx={{ px: 2, py: 1 }}>
-            <Typography variant="subtitle1" fontWeight={600}>
+            <Typography variant="subtitle1" fontWeight={600} color="text.primary">
               {user?.firstName} {user?.lastName}
             </Typography>
             <Typography variant="body2" color="text.secondary">
               {user?.email}
             </Typography>
           </Box>
-          <Divider sx={{ my: 1, borderColor: 'rgba(124,58,237,0.2)' }} />
+          <Divider sx={{ my: 1, borderColor: 'divider' }} />
 
           {/* Mobile nav items */}
           {navItems.map((item) => (
@@ -127,25 +128,26 @@ export default function Navbar() {
               sx={{
                 borderRadius: 2,
                 mx: 1,
-                '&:hover': { backgroundColor: 'rgba(124,58,237,0.15)' },
+                color: 'text.primary',
+                '&:hover': { backgroundColor: 'rgba(79, 70, 229, 0.05)' },
               }}
             >
-              <ListItemIcon>{item.icon}</ListItemIcon>
+              <ListItemIcon sx={{ color: 'text.secondary' }}>{item.icon}</ListItemIcon>
               <ListItemText>{item.label}</ListItemText>
             </MenuItem>
           ))}
 
-          <Divider sx={{ my: 1, borderColor: 'rgba(124,58,237,0.2)' }} />
+          <Divider sx={{ my: 1, borderColor: 'divider' }} />
           <MenuItem
             onClick={handleLogout}
             sx={{
               borderRadius: 2,
               mx: 1,
-              '&:hover': { backgroundColor: 'rgba(239,68,68,0.15)' },
+              '&:hover': { backgroundColor: 'rgba(239,68,68,0.08)' },
               color: 'error.main',
             }}
           >
-            <ListItemIcon><Logout fontSize="small" /></ListItemIcon>
+            <ListItemIcon><Logout fontSize="small" sx={{ color: 'error.main' }} /></ListItemIcon>
             <ListItemText>Logout</ListItemText>
           </MenuItem>
         </Menu>
