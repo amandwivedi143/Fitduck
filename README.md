@@ -335,7 +335,7 @@ sequenceDiagram
   Rabbit->>AI: Consume activity.queue
   AI->>Groq: Request recommendation
   AI->>Mongo: Save recommendation
-  UI->>GW: GET /api/recommendation/user/{userId}
+  UI->>GW: GET user recommendations
   GW->>AI: Route request
   AI->>Mongo: Query recommendations
   AI-->>UI: Recommendation list

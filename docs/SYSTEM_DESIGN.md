@@ -38,12 +38,12 @@ sequenceDiagram
   participant Google as Google Token Verification
   participant User as User Service
 
-  UI->>GW: POST /api/auth/google { credential }
+  UI->>GW: POST /api/auth/google with credential
   GW->>Google: Verify Google ID token
   GW->>User: Upsert user by email
   User-->>GW: UserResponse
   GW->>GW: Mint app JWT
-  GW-->>UI: Set-Cookie app_jwt; { user }
+  GW-->>UI: Set app_jwt cookie and return user
 ```
 
 Email signup and login follow the same gateway-to-user-service pattern without Google token verification.
@@ -67,7 +67,7 @@ sequenceDiagram
   Rabbit->>Helper: Listener consumes request
   Helper->>Groq: Generate plan
   Helper->>Mongo: Update plan to COMPLETED or FAILED
-  UI->>GW: Poll GET /api/.../{id}
+  UI->>GW: Poll plan status endpoint
   GW->>Helper: Fetch plan
   Helper-->>UI: Current plan status and content
 ```

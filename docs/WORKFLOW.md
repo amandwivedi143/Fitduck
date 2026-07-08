@@ -32,14 +32,14 @@ sequenceDiagram
 
   UI->>Gateway: POST /api/activity
   Gateway->>Activity: Forward with X-User-ID
-  Activity->>User: GET /api/user/{userId}/validate
+  Activity->>User: Validate user id
   User-->>Activity: true or false
   Activity->>Mongo: Save activity
   Activity->>Rabbit: Publish activity JSON
   Rabbit->>AI: Deliver activity.queue message
   AI->>Groq: Generate recommendation
   AI->>Mongo: Save recommendation
-  UI->>Gateway: GET /api/recommendation/user/{userId}
+  UI->>Gateway: GET user recommendations
   Gateway->>AI: Forward request
   AI->>Mongo: Query recommendations
   AI-->>UI: Recommendation documents
@@ -56,7 +56,7 @@ flowchart LR
   Listener --> Groq[Groq prompt]
   Groq --> Update[Update document with dayPlans]
   Update --> Status[COMPLETED or FAILED]
-  Status --> Poll[Frontend polls GET /api/mealplan/{id}]
+  Status --> Poll[Frontend polls meal plan endpoint]
 ```
 
 ## Workout Plan Pipeline
@@ -70,7 +70,7 @@ flowchart LR
   Listener --> Groq[Groq prompt]
   Groq --> Update[Update document with workoutDays]
   Update --> Status[COMPLETED or FAILED]
-  Status --> Poll[Frontend polls GET /api/workoutplan/{id}]
+  Status --> Poll[Frontend polls workout plan endpoint]
 ```
 
 ## Developer Workflow

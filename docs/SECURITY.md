@@ -27,7 +27,7 @@ sequenceDiagram
   UI->>Gateway: POST /api/auth/login
   Gateway->>UserService: Validate credentials
   UserService-->>Gateway: UserResponse
-  Gateway-->>UI: Set-Cookie app_jwt; HttpOnly; SameSite=Lax
+  Gateway-->>UI: Set app_jwt cookie with HttpOnly and SameSite Lax
   UI->>Gateway: GET /api/activity with cookie
   Gateway->>Gateway: Verify JWT
   Gateway->>Service: Forward with X-User-ID
