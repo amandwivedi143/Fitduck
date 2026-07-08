@@ -1,0 +1,7 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: fittrack
+  labels:
+    app.kubernetes.io/name: fittrack
+    app.kubernetes.io/part-of: fitness-web-microservices

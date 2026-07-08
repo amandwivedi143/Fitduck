@@ -1,0 +1,60 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: configserver
+  namespace: fittrack
+  labels:
+    app: configserver
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: configserver
+  template:
+    metadata:
+      labels:
+        app: configserver
+    spec:
+      containers:
+        - name: configserver
+          image: 2201920100047/configserver:latest
+          imagePullPolicy: IfNotPresent
+          ports:
+            - containerPort: 8888
+          env:
+            - name: PORT
+              value: "8888"
+            - name: SPRING_PROFILES_ACTIVE
+              value: native
+            - name: EUREKA_HOST
+              value: eureka
+            - name: JAVA_OPTS
+              value: "-Xms128m -Xmx256m -XX:+UseSerialGC"
+          resources:
+            limits:
+              memory: 384Mi
+              cpu: 500m
+          readinessProbe:
+            httpGet:
+              path: /actuator/health
+              port: 8888
+            initialDelaySeconds: 60
+            periodSeconds: 10
+          livenessProbe:
+            httpGet:
+              path: /actuator/health
+              port: 8888
+            initialDelaySeconds: 90
+            periodSeconds: 20
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: configserver
+  namespace: fittrack
+spec:
+  selector:
+    app: configserver
+  ports:
+    - port: 8888
+      targetPort: 8888

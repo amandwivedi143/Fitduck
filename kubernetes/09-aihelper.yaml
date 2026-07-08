@@ -1,0 +1,78 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: aihelper
+  namespace: fittrack
+  labels:
+    app: aihelper
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: aihelper
+  template:
+    metadata:
+      labels:
+        app: aihelper
+    spec:
+      containers:
+        - name: aihelper
+          image: 2201920100047/aihelper:latest
+          imagePullPolicy: IfNotPresent
+          ports:
+            - containerPort: 8084
+          env:
+            - name: PORT
+              value: "8084"
+            - name: CONFIG_HOST
+              value: configserver
+            - name: EUREKA_HOST
+              value: eureka
+            - name: RABBITMQ_HOST
+              value: rabbitmq
+            - name: RABBITMQ_PORT
+              value: "5672"
+            - name: RABBITMQ_USERNAME
+              value: guest
+            - name: RABBITMQ_PASSWORD
+              value: guest
+            - name: MONGODB_URI
+              valueFrom:
+                secretKeyRef:
+                  name: fittrack-secrets
+                  key: MONGODB_URI
+            - name: GEN_AI_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: fittrack-secrets
+                  key: GEN_AI_KEY
+            - name: JAVA_OPTS
+              value: "-Xms128m -Xmx384m -XX:+UseSerialGC"
+          resources:
+            limits:
+              memory: 512Mi
+              cpu: 500m
+          readinessProbe:
+            httpGet:
+              path: /actuator/health
+              port: 8084
+            initialDelaySeconds: 90
+            periodSeconds: 15
+          livenessProbe:
+            httpGet:
+              path: /actuator/health
+              port: 8084
+            initialDelaySeconds: 120
+            periodSeconds: 20
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: aihelper
+  namespace: fittrack
+spec:
+  selector:
+    app: aihelper
+  ports:
+    - port: 8084
+      targetPort: 8084
