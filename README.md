@@ -1,7 +1,11 @@
 <div align="center">
   <img src="docs/IMAGES/logo.svg" width="120" alt="FitTrack Microservices logo"/>
-   <a href="https://luminous-caramel-4e666b.netlify.app/">click me</a>
   <h1>FitTrack Microservices</h1>
+  
+  <p>
+    <a href="https://luminous-caramel-4e666b.netlify.app/" style="font-size: 18px; font-weight: bold; color: #0066cc;">🚀 View Live Demo</a>
+  </p>
+  
   <p><strong>AI-assisted fitness tracking, meal planning, workout generation, and activity recommendations built with Spring Boot microservices and React.</strong></p>
 
   <p>
@@ -42,9 +46,9 @@
 
 ## Project Overview
 
-FitTrack Microservices is a full-stack fitness platform split into independent services for authentication, user profiles, activity tracking, AI recommendations, AI meal plans, and AI workout plans. The frontend is a React and Vite single-page application served by nginx in production. Backend traffic flows through a Spring Cloud Gateway that authenticates users, injects a trusted `X-User-ID` header, and routes requests to downstream services.
+FitTrack Microservices is a full-stack fitness platform split into independent services for authentication, user profiles, activity tracking, AI recommendations, AI meal plans, and AI workout plans. The repository includes Dockerfiles for each service, a Docker Compose deployment, Kubernetes manifests for Minikube-style deployments, k6 smoke/load scripts, and real UI screenshots captured from the application.
 
-The repository includes Dockerfiles for each service, a Docker Compose deployment, Kubernetes manifests for Minikube-style deployments, k6 smoke/load scripts, and real UI screenshots captured from the frontend.
+The repository includes Dockerfiles for each service, a Docker Compose deployment, Kubernetes manifests for Minikube-style deployments, k6 smoke/load scripts, and real UI screenshots captured from the application.
 
 ## Why This Project Exists
 
