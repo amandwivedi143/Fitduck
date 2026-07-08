@@ -14,8 +14,5 @@ RUN apk add --no-cache curl
 COPY --from=build /app/target/*.jar app.jar
 
 EXPOSE 8761
-ENTRYPOINT ["java", \
-  "-XX:+UseContainerSupport", \
-  "-XX:MaxRAMPercentage=60.0", \
-  "-Xmx256m", \
-  "-jar", "app.jar"]
+# Use shell form so $JAVA_OPTS from docker-compose is respected
+ENTRYPOINT exec java ${JAVA_OPTS} -XX:+UseContainerSupport -jar app.jar

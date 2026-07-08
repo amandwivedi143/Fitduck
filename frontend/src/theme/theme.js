@@ -71,7 +71,7 @@ const theme = createTheme({
     },
   },
   shape: {
-    borderRadius: 16,
+    borderRadius: 12,
   },
   components: {
     MuiButton: {
@@ -105,12 +105,12 @@ const theme = createTheme({
         root: {
           background: '#FFFFFF',
           border: '1px solid rgba(79, 70, 229, 0.06)',
-          borderRadius: 20,
-          boxShadow: '0 10px 30px -3px rgba(79, 70, 229, 0.04), 0 4px 12px -2px rgba(79, 70, 229, 0.02)',
+          borderRadius: 14,
+          boxShadow: '0 6px 18px -3px rgba(79, 70, 229, 0.04), 0 2px 8px -2px rgba(79, 70, 229, 0.02)',
           transition: 'transform 0.25s cubic-bezier(0.4, 0, 0.2, 1), box-shadow 0.25s ease',
           '&:hover': {
-            transform: 'translateY(-4px)',
-            boxShadow: '0 20px 40px -4px rgba(79, 70, 229, 0.08), 0 8px 20px -2px rgba(79, 70, 229, 0.04)',
+            transform: 'translateY(-2px)',
+            boxShadow: '0 10px 24px -4px rgba(79, 70, 229, 0.06), 0 4px 12px -2px rgba(79, 70, 229, 0.03)',
           },
         },
       },

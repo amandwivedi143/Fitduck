@@ -15,6 +15,19 @@ const api = axios.create({
   },
 });
 
+function isSafeInternalPath(path) {
+  return typeof path === 'string'
+    && path.startsWith('/')
+    && !path.startsWith('//')
+    && !path.startsWith('/\\');
+}
+
+function buildLoginRedirectUrl() {
+  const currentPath = `${window.location.pathname}${window.location.search}${window.location.hash}`;
+  const redirectParam = isSafeInternalPath(currentPath) ? currentPath : '/dashboard';
+  return `/login?redirect=${encodeURIComponent(redirectParam)}`;
+}
+
 // --- Interceptors ---
 
 // 401 → the app JWT cookie is missing / expired → kick to login.
@@ -24,7 +37,7 @@ api.interceptors.response.use(
     if (err.response && err.response.status === 401) {
       // Only redirect if not already on the login page.
       if (window.location.pathname !== '/login') {
-        window.location.href = '/login';
+        window.location.assign(buildLoginRedirectUrl());
       }
     }
     return Promise.reject(err);

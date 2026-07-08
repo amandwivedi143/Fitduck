@@ -191,6 +191,7 @@ function computeMetrics(activities) {
     lastWeekCalories,
     calorieChange,
     weekMinutes,
+    lastWeekMinutes,
     minutesOnTrack,
     streak,
     recoveryScore,
@@ -302,7 +303,7 @@ export default function DashboardPage() {
                   variant="outlined"
                   size="large"
                   onClick={() => navigate('/activities')}
-                  sx={{ borderColor: 'rgba(255,255,255,0.15)', color: 'text.primary' }}
+                  sx={{ borderColor: 'rgba(79, 70, 229, 0.3)', color: 'text.primary', '&:hover': { borderColor: 'rgba(79, 70, 229, 0.5)', bgcolor: 'rgba(79, 70, 229, 0.04)' } }}
                 >
                   View Schedule
                 </Button>
@@ -356,7 +357,7 @@ export default function DashboardPage() {
             subtitle="This week"
             icon="clock"
             sparklineData={m.dailyMinutes}
-            trend={m.minutesOnTrack ? 'On Track' : `${Math.round(((m.weekMinutes - m.lastWeekCalories) / Math.max(m.weekMinutes, 1)) * 100)}% off`}
+            trend={m.minutesOnTrack ? 'On Track' : `${Math.round(((m.weekMinutes - m.lastWeekMinutes) / Math.max(m.lastWeekMinutes, 1)) * 100)}% vs last week`}
           />
         </Grid>
         <Grid size={{ xs: 12, sm: 6, md: 3 }}>
@@ -687,6 +688,7 @@ export default function DashboardPage() {
               <Button
                 fullWidth
                 variant="outlined"
+                disabled
                 sx={{ mt: 3, borderColor: 'rgba(255,255,255,0.1)', color: 'text.primary' }}
               >
                 Manage Goals
@@ -709,6 +711,8 @@ export default function DashboardPage() {
                 <>
                   <Box sx={{ width: 160, height: 160, mx: 'auto', mb: 3 }}>
                     <PieChart
+                      width={160}
+                      height={160}
                       series={[
                         {
                           innerRadius: 50,

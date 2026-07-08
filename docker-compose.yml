@@ -1,59 +1,53 @@
 # ============================================================
-# Docker Compose — Fitness Web Microservices (Production)
+# Docker Compose — Fitness Web Microservices (EC2 Free Tier)
 # ============================================================
-# Designed for single-VM deployment (Oracle Cloud, etc.)
-# Databases are external: TiDB Cloud (MySQL) + MongoDB Atlas
-# Only port 80 (nginx) is exposed to the internet.
-#
-#   docker compose up -d --build
+# Pre-built images — no build step needed.
+#   docker compose up -d
 # ============================================================
 
 services:
-  # ---------- Infrastructure ----------
 
+  # 1. RabbitMQ (no dependencies)
   rabbitmq:
-    image: rabbitmq:3-management
+    image: rabbitmq:3-management-alpine
     container_name: fitness-rabbitmq
     restart: unless-stopped
-    # No port mapping — only accessible within Docker network
     environment:
       RABBITMQ_DEFAULT_USER: guest
       RABBITMQ_DEFAULT_PASS: guest
     healthcheck:
       test: ["CMD", "rabbitmq-diagnostics", "-q", "check_running"]
-      interval: 10s
+      interval: 15s
       timeout: 5s
       retries: 5
+      start_period: 30s
     deploy:
       resources:
         limits:
-          memory: 256M
+          memory: 128M
 
-  # ---------- Backend Services ----------
-
+  # 2. Eureka (no dependencies)
   eureka:
-    build:
-      context: ./eureka
-      dockerfile: Dockerfile
+    image: 2201920100047/eureka:latest
     container_name: fitness-eureka
     restart: unless-stopped
     environment:
       - PORT=8761
+      - JAVA_OPTS=-Xms128m -Xmx180m -XX:+UseSerialGC -XX:TieredStopAtLevel=1
     healthcheck:
-      test: ["CMD", "curl", "-sf", "http://localhost:8761/actuator/health"]
+      test: ["CMD-SHELL", "curl -sf http://localhost:8761/ || exit 1"]
       interval: 15s
       timeout: 5s
-      retries: 5
-      start_period: 60s
+      retries: 8
+      start_period: 90s
     deploy:
       resources:
         limits:
-          memory: 384M
+          memory: 200M
 
+  # 3. Config Server (needs eureka)
   configserver:
-    build:
-      context: ./configserver
-      dockerfile: Dockerfile
+    image: 2201920100047/configserver:latest
     container_name: fitness-configserver
     restart: unless-stopped
     depends_on:
@@ -62,21 +56,21 @@ services:
     environment:
       - PORT=8888
       - SPRING_PROFILES_ACTIVE=native
+      - JAVA_OPTS=-Xms128m -Xmx180m -XX:+UseSerialGC -XX:TieredStopAtLevel=1
     healthcheck:
       test: ["CMD", "curl", "-sf", "http://localhost:8888/actuator/health"]
       interval: 15s
       timeout: 5s
-      retries: 5
-      start_period: 60s
+      retries: 8
+      start_period: 90s
     deploy:
       resources:
         limits:
-          memory: 384M
+          memory: 200M
 
+  # 4. User Service (needs configserver)
   userservice:
-    build:
-      context: ./userservice
-      dockerfile: Dockerfile
+    image: 2201920100047/userservice:latest
     container_name: fitness-userservice
     restart: unless-stopped
     depends_on:
@@ -84,27 +78,23 @@ services:
         condition: service_healthy
     environment:
       - PORT=8081
-      - CONFIG_SERVER_URL=http://configserver:8888
-      - EUREKA_URL=http://eureka:8761/eureka/
-      # TiDB Cloud (external MySQL-compatible)
-      - MYSQL_URL=${SPRING_DATASOURCE_URL}
-      - MYSQL_USERNAME=${DB_USERNAME}
-      - MYSQL_PASSWORD=${DB_PASSWORD}
+      - CONFIG_HOST=configserver
+      - EUREKA_HOST=eureka
+      - JAVA_OPTS=-Xms128m -Xmx256m -XX:+UseSerialGC -XX:TieredStopAtLevel=1
     healthcheck:
       test: ["CMD", "curl", "-sf", "http://localhost:8081/actuator/health"]
-      interval: 15s
+      interval: 20s
       timeout: 5s
-      retries: 5
-      start_period: 90s
+      retries: 6
+      start_period: 120s
     deploy:
       resources:
         limits:
-          memory: 512M
+          memory: 280M
 
+  # 5. Activity Service (needs configserver + rabbitmq)
   activity-service:
-    build:
-      context: ./activity-status
-      dockerfile: Dockerfile
+    image: 2201920100047/activity-status:latest
     container_name: fitness-activity-service
     restart: unless-stopped
     depends_on:
@@ -114,29 +104,27 @@ services:
         condition: service_healthy
     environment:
       - PORT=8082
-      - CONFIG_SERVER_URL=http://configserver:8888
-      - EUREKA_URL=http://eureka:8761/eureka/
-      # MongoDB Atlas (external)
-      - MONGODB_URI=${MONGODB_URI}
+      - CONFIG_HOST=configserver
+      - EUREKA_HOST=eureka
       - RABBITMQ_HOST=rabbitmq
       - RABBITMQ_PORT=5672
       - RABBITMQ_USERNAME=guest
       - RABBITMQ_PASSWORD=guest
+      - JAVA_OPTS=-Xms128m -Xmx220m -XX:+UseSerialGC -XX:TieredStopAtLevel=1
     healthcheck:
       test: ["CMD", "curl", "-sf", "http://localhost:8082/actuator/health"]
-      interval: 15s
+      interval: 20s
       timeout: 5s
-      retries: 5
-      start_period: 90s
+      retries: 6
+      start_period: 120s
     deploy:
       resources:
         limits:
-          memory: 512M
+          memory: 240M
 
+  # 6. AI Service (needs configserver + rabbitmq)
   ai-service:
-    build:
-      context: ./aiservice
-      dockerfile: Dockerfile
+    image: 2201920100047/aiservice:latest
     container_name: fitness-ai-service
     restart: unless-stopped
     depends_on:
@@ -146,30 +134,27 @@ services:
         condition: service_healthy
     environment:
       - PORT=8083
-      - CONFIG_SERVER_URL=http://configserver:8888
-      - EUREKA_URL=http://eureka:8761/eureka/
-      # MongoDB Atlas (external)
-      - MONGODB_URI=${MONGODB_URI}
+      - CONFIG_HOST=configserver
+      - EUREKA_HOST=eureka
       - RABBITMQ_HOST=rabbitmq
       - RABBITMQ_PORT=5672
       - RABBITMQ_USERNAME=guest
       - RABBITMQ_PASSWORD=guest
-      - GROQ_API_KEY=${GEN_AI_KEY}
+      - JAVA_OPTS=-Xms128m -Xmx220m -XX:+UseSerialGC -XX:TieredStopAtLevel=1
     healthcheck:
       test: ["CMD", "curl", "-sf", "http://localhost:8083/actuator/health"]
-      interval: 15s
+      interval: 20s
       timeout: 5s
-      retries: 5
-      start_period: 90s
+      retries: 6
+      start_period: 120s
     deploy:
       resources:
         limits:
-          memory: 512M
+          memory: 240M
 
+  # 7. AI Helper Service (needs configserver + rabbitmq)
   aihelper:
-    build:
-      context: ./Aihelper
-      dockerfile: Dockerfile
+    image: 2201920100047/aihelper:latest
     container_name: fitness-aihelper-service
     restart: unless-stopped
     depends_on:
@@ -179,66 +164,70 @@ services:
         condition: service_healthy
     environment:
       - PORT=8084
-      - CONFIG_SERVER_URL=http://configserver:8888
-      - EUREKA_URL=http://eureka:8761/eureka/
-      # MongoDB Atlas (external)
-      - MONGODB_URI=${MONGODB_URI}
+      - CONFIG_HOST=configserver
+      - EUREKA_HOST=eureka
       - RABBITMQ_HOST=rabbitmq
       - RABBITMQ_PORT=5672
       - RABBITMQ_USERNAME=guest
       - RABBITMQ_PASSWORD=guest
-      - GROQ_API_KEY=${GEN_AI_KEY}
+      - JAVA_OPTS=-Xms128m -Xmx220m -XX:+UseSerialGC -XX:TieredStopAtLevel=1
     healthcheck:
       test: ["CMD", "curl", "-sf", "http://localhost:8084/actuator/health"]
-      interval: 15s
+      interval: 20s
       timeout: 5s
-      retries: 5
-      start_period: 90s
+      retries: 6
+      start_period: 120s
     deploy:
       resources:
         limits:
-          memory: 512M
+          memory: 240M
 
+  # 8. Gateway (needs eureka + configserver)
   gateway:
-    build:
-      context: ./gateway
-      dockerfile: Dockerfile
+    image: 2201920100047/gateway:latest
     container_name: fitness-gateway
     restart: unless-stopped
     depends_on:
+      eureka:
+        condition: service_healthy
       configserver:
         condition: service_healthy
-      eureka:
+      userservice:
+        condition: service_healthy
+      activity-service:
+        condition: service_healthy
+      aihelper:
+        condition: service_healthy
+      ai-service:
         condition: service_healthy
     environment:
       - PORT=8080
-      - CONFIG_SERVER_URL=http://configserver:8888
-      - EUREKA_URL=http://eureka:8761/eureka/
+      - CONFIG_HOST=configserver
+      - EUREKA_HOST=eureka
       - USER_SERVICE_URL=http://userservice:8081
-      - GOOGLE_CLIENT_ID=${GOOGLE_CLIENT_ID}
-      - APP_JWT_SECRET=${APP_JWT_SECRET}
+      - JAVA_OPTS=-Xms128m -Xmx220m -XX:+UseSerialGC -XX:TieredStopAtLevel=1
     healthcheck:
       test: ["CMD", "curl", "-sf", "http://localhost:8080/actuator/health"]
-      interval: 15s
+      interval: 20s
       timeout: 5s
-      retries: 5
-      start_period: 90s
+      retries: 6
+      start_period: 120s
     deploy:
       resources:
         limits:
-          memory: 512M
+          memory: 240M
 
-  # ---------- Frontend (only service exposed to internet) ----------
-
+  # 9. Frontend (needs gateway)
   frontend:
-    build:
-      context: ./frontend
-      dockerfile: Dockerfile
+    image: 2201920100047/frontend:latest
     container_name: fitness-frontend
     restart: unless-stopped
     depends_on:
       gateway:
         condition: service_healthy
     ports:
-      # ONLY exposed port — this is your public entry point
       - "80:80"
+    deploy:
+      resources:
+        limits:
+          memory: 50M

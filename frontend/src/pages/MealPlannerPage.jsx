@@ -2,15 +2,14 @@ import { useState, useEffect, useCallback, useRef } from 'react';
 import {
   Box, Typography, Grid, Card, CardContent, Button, TextField,
   MenuItem, CircularProgress, Alert, LinearProgress, Chip,
-  IconButton, Paper, Divider, Dialog, DialogTitle, DialogContent,
+  IconButton, Divider, Dialog, DialogTitle, DialogContent,
   DialogActions, InputAdornment, Snackbar, Collapse, List, ListItem,
-  ListItemText, ListItemIcon,
+  ListItemText, ListItemIcon, Tooltip,
 } from '@mui/material';
 import {
   Psychology, ShoppingCart, Refresh, Edit,
   RestaurantMenu, AddCircle, Print, AccessTime,
   Close, CheckCircle, ExpandMore, ExpandLess,
-  Delete,
 } from '@mui/icons-material';
 import { jsPDF } from 'jspdf';
 import autoTable from 'jspdf-autotable';
@@ -740,12 +739,20 @@ export default function MealPlannerPage() {
                               )}
                             </Box>
                             <Box sx={{ display: 'flex', gap: 0.5 }}>
-                              <IconButton size="small" sx={{ color: 'text.secondary' }}>
-                                <Refresh fontSize="small" />
-                              </IconButton>
-                              <IconButton size="small" sx={{ color: 'text.secondary' }}>
-                                <Edit fontSize="small" />
-                              </IconButton>
+                              <Tooltip title="Meal regenerate is not available yet">
+                                <span>
+                                  <IconButton size="small" disabled sx={{ color: 'text.secondary' }}>
+                                    <Refresh fontSize="small" />
+                                  </IconButton>
+                                </span>
+                              </Tooltip>
+                              <Tooltip title="Inline meal edit is not available yet">
+                                <span>
+                                  <IconButton size="small" disabled sx={{ color: 'text.secondary' }}>
+                                    <Edit fontSize="small" />
+                                  </IconButton>
+                                </span>
+                              </Tooltip>
                             </Box>
                           </Box>
 

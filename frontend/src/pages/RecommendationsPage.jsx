@@ -84,8 +84,8 @@ export default function RecommendationsPage() {
                 }}
                 onClick={() => toggleExpand(rec.id)}
               >
-                <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                  <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: 2 }}>
+                  <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, flexWrap: 'wrap' }}>
                     <Typography variant="h6" fontWeight={600}>🤖 Analysis</Typography>
                     <Chip
                       label={rec.activityType}

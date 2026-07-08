@@ -48,7 +48,7 @@ public class SecurityConfig {
         // Falls back to localhost for local dev and "*" to allow any origin in production.
         String originsRaw = System.getenv().getOrDefault(
                 "CORS_ALLOWED_ORIGINS",
-                "http://localhost:5173,http://127.0.0.1:5173,http://localhost:5174"
+                "http://localhost:5173,https://railway-blustery-disrupt.ngrok-free.dev,https://fitduck.duckdns.org,http://127.0.0.1:5173,http://localhost:5174"
         );
         config.setAllowedOrigins(List.of(originsRaw.split(",")));
         config.setAllowedMethods(List.of("GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"));

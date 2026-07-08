@@ -545,13 +545,13 @@ export default function VideosPage() {
                 height: 22,
               }}
             />
-            <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5, color: 'text.secondary' }}>
+            <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5, color: 'rgba(255, 255, 255, 0.75)' }}>
               <AccessTime sx={{ fontSize: 16 }} />
               <Typography variant="caption" sx={{ fontWeight: 600 }}>
                 {HERO_VIDEO.duration}
               </Typography>
             </Box>
-            <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5, color: 'text.secondary' }}>
+            <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5, color: 'rgba(255, 255, 255, 0.75)' }}>
               <LocalFireDepartment sx={{ fontSize: 16, color: '#F97316' }} />
               <Typography variant="caption" sx={{ fontWeight: 600 }}>
                 {HERO_VIDEO.calories} CAL
@@ -569,7 +569,7 @@ export default function VideosPage() {
           <Typography
             variant="body2"
             sx={{
-              color: 'text.secondary',
+              color: 'rgba(255, 255, 255, 0.8)',
               mb: 3,
               display: '-webkit-box',
               WebkitLineClamp: 2,

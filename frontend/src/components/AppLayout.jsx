@@ -2,8 +2,9 @@ import { Outlet, useNavigate } from 'react-router-dom';
 import {
   Box, AppBar, Toolbar, IconButton, Typography, Avatar,
   InputBase, Paper, useMediaQuery, useTheme, Divider,
+  Tooltip,
 } from '@mui/material';
-import { Search, Notifications, Settings, Logout } from '@mui/icons-material';
+import { Search, Notifications, Settings } from '@mui/icons-material';
 import Sidebar, { DRAWER_WIDTH, BOTTOM_NAV_HEIGHT } from './Sidebar';
 import { useAuth } from '../auth/AuthContext';
 
@@ -15,7 +16,7 @@ export default function AppLayout() {
 
   const handleLogout = async () => {
     await logout();
-    navigate('/login');
+    navigate('/login', { replace: true });
   };
 
   return (
@@ -89,12 +90,20 @@ export default function AppLayout() {
 
             {/* Right actions */}
             <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-              <IconButton size="small" sx={{ color: 'text.secondary' }}>
-                <Notifications fontSize="small" />
-              </IconButton>
-              <IconButton size="small" sx={{ color: 'text.secondary' }}>
-                <Settings fontSize="small" />
-              </IconButton>
+              <Tooltip title="Notifications are not available yet">
+                <span>
+                  <IconButton size="small" disabled sx={{ color: 'text.secondary' }}>
+                    <Notifications fontSize="small" />
+                  </IconButton>
+                </span>
+              </Tooltip>
+              <Tooltip title="Settings are not available yet">
+                <span>
+                  <IconButton size="small" disabled sx={{ color: 'text.secondary' }}>
+                    <Settings fontSize="small" />
+                  </IconButton>
+                </span>
+              </Tooltip>
 
               <Divider orientation="vertical" flexItem sx={{ mx: 1, borderColor: 'divider' }} />
 
@@ -112,7 +121,7 @@ export default function AppLayout() {
                 }}
                 onClick={handleLogout}
               >
-                <Typography variant="body2" sx={{ color: 'text.primary', fontWeight: 600 }}>
+                <Typography variant="body2" sx={{ color: 'text.primary', fontWeight: 600, display: { xs: 'none', sm: 'block' } }}>
                   {user?.firstName} 💪
                 </Typography>
                 <Avatar

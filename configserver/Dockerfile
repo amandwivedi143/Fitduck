@@ -14,8 +14,4 @@ RUN apk add --no-cache curl
 COPY --from=build /app/target/*.jar app.jar
 
 EXPOSE 8888
-ENTRYPOINT ["java", \
-  "-XX:+UseContainerSupport", \
-  "-XX:MaxRAMPercentage=60.0", \
-  "-Xmx256m", \
-  "-jar", "app.jar"]
+ENTRYPOINT exec java ${JAVA_OPTS} -XX:+UseContainerSupport -jar app.jar

@@ -1,5 +1,5 @@
-import { useEffect, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useCallback, useEffect, useState } from 'react';
+import { useLocation, useNavigate } from 'react-router-dom';
 import {
   Alert,
   Box,
@@ -50,17 +50,28 @@ function getErrorMessage(err, mode) {
 export default function LoginPage() {
   const { user, loading, login, signup } = useAuth();
   const navigate = useNavigate();
+  const location = useLocation();
   const [mode, setMode] = useState('login');
   const [form, setForm] = useState(initialForm);
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState('');
 
+  const getSafeRedirectPath = useCallback(() => {
+    const fromState = location.state?.from;
+    const fromQuery = new URLSearchParams(location.search).get('redirect');
+    const candidate = fromState || fromQuery;
+    if (typeof candidate === 'string' && candidate.startsWith('/') && !candidate.startsWith('//')) {
+      return candidate;
+    }
+    return '/dashboard';
+  }, [location.state, location.search]);
+
   // If already logged in, redirect to dashboard.
   useEffect(() => {
     if (!loading && user) {
-      navigate('/dashboard', { replace: true });
+      navigate(getSafeRedirectPath(), { replace: true });
     }
-  }, [user, loading, navigate]);
+  }, [user, loading, navigate, getSafeRedirectPath]);
 
   const updateField = (event) => {
     setForm((current) => ({ ...current, [event.target.name]: event.target.value }));
@@ -90,7 +101,7 @@ export default function LoginPage() {
       } else {
         await signup(payload);
       }
-      navigate('/dashboard', { replace: true });
+      navigate(getSafeRedirectPath(), { replace: true });
     } catch (err) {
       setError(getErrorMessage(err, mode));
     } finally {

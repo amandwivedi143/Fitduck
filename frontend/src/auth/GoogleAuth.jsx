@@ -2,9 +2,8 @@ import { useEffect, useRef, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from './AuthContext';
 
-// Your Google OAuth Client ID (Web application type).
-const GOOGLE_CLIENT_ID =
-  '775509038693-bshcj00biq64gdc5r09ilnk18serure0.apps.googleusercontent.com';
+const GOOGLE_CLIENT_ID = import.meta.env.VITE_GOOGLE_CLIENT_ID
+  || '775509038693-bshcj00biq64gdc5r09ilnk18serure0.apps.googleusercontent.com';
 
 /**
  * Loads Google Identity Services (accounts.google.com/gsi/client) once and
@@ -38,33 +37,45 @@ export default function GoogleAuthButton() {
 
   useEffect(() => {
     if (googleInitialized.current) return;
+    if (!GOOGLE_CLIENT_ID) return;
 
-    // Load GIS script dynamically.
+    const initGoogleButton = () => {
+      if (!buttonRef.current || !window.google?.accounts?.id) return;
+      window.google.accounts.id.initialize({
+        client_id: GOOGLE_CLIENT_ID,
+        callback: handleCredentialResponse,
+      });
+      window.google.accounts.id.renderButton(buttonRef.current, {
+        theme: 'filled_black',
+        size: 'large',
+        text: 'signin_with',
+        shape: 'pill',
+        width: 320,
+      });
+      googleInitialized.current = true;
+    };
+
+    const existingScript = document.querySelector('script[src="https://accounts.google.com/gsi/client"]');
+    if (existingScript) {
+      if (window.google?.accounts?.id) {
+        initGoogleButton();
+      } else {
+        existingScript.addEventListener('load', initGoogleButton, { once: true });
+      }
+      return undefined;
+    }
+
     const script = document.createElement('script');
     script.src = 'https://accounts.google.com/gsi/client';
     script.async = true;
     script.defer = true;
-    script.onload = () => {
-      // Initialize the GIS button once the script loads.
-      if (buttonRef.current && window.google) {
-        window.google.accounts.id.initialize({
-          client_id: GOOGLE_CLIENT_ID,
-          callback: handleCredentialResponse,
-        });
-        window.google.accounts.id.renderButton(buttonRef.current, {
-          theme: 'filled_black',
-          size: 'large',
-          text: 'signin_with',
-          shape: 'pill',
-          width: 320,
-        });
-        googleInitialized.current = true;
-      }
-    };
+    script.onload = initGoogleButton;
     document.body.appendChild(script);
 
     return () => {
-      document.body.removeChild(script);
+      if (script.parentNode) {
+        document.body.removeChild(script);
+      }
     };
   }, [handleCredentialResponse]);
 

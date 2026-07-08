@@ -1,4 +1,4 @@
-import { Routes, Route, Navigate, Outlet } from 'react-router-dom';
+import { Routes, Route, Navigate, Outlet, useLocation } from 'react-router-dom';
 import { Box, CircularProgress } from '@mui/material';
 import { useAuth } from './auth/AuthContext';
 import AppLayout from './components/AppLayout';
@@ -16,6 +16,7 @@ import WorkoutGeneratorPage from './pages/WorkoutGeneratorPage';
  */
 function ProtectedLayout() {
   const { user, loading } = useAuth();
+  const location = useLocation();
 
   if (loading) {
     return (
@@ -26,7 +27,13 @@ function ProtectedLayout() {
   }
 
   if (!user) {
-    return <Navigate to="/login" replace />;
+    return (
+      <Navigate
+        to="/login"
+        replace
+        state={{ from: `${location.pathname}${location.search}` }}
+      />
+    );
   }
 
   return (
