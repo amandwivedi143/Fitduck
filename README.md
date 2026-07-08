@@ -1,5 +1,6 @@
 <div align="center">
-  <img src="docs/IMAGES/logo.svg" width="120" alt="FitTrack Microservices logo" <a href="https://luminous-caramel-4e666b.netlify.app/">Clickable Link</a>/>
+  <img src="docs/IMAGES/logo.svg" width="120" alt="FitTrack Microservices logo"/>
+   <a href="https://luminous-caramel-4e666b.netlify.app/">click me</a>
   <h1>FitTrack Microservices</h1>
   <p><strong>AI-assisted fitness tracking, meal planning, workout generation, and activity recommendations built with Spring Boot microservices and React.</strong></p>
 
