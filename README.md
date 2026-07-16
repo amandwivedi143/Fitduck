@@ -39,6 +39,7 @@
 - [Database Overview](#database-overview)
 - [Security Features](#security-features)
 - [Monitoring And Logging](#monitoring-and-logging)
+- [Grafana Dashboard](#grafana-dashboard)
 - [AI Workflow](#ai-workflow)
 - [Future Roadmap](#future-roadmap)
 - [Contributing](#contributing)
@@ -318,7 +319,18 @@ Current security concerns are documented in [SECURITY.md](docs/SECURITY.md), inc
 - Services use container logs; several services use Lombok `@Slf4j`.
 - RabbitMQ management port `15672` exists in Kubernetes service definitions but is not published by Compose.
 - k6 scripts provide smoke and load testing from outside the app.
-- No centralized tracing, metrics dashboard, or log aggregation stack is present in the repository.
+- Grafana screenshots are documented in [GRAFANA_MONITORING.md](docs/GRAFANA_MONITORING.md).
+- Grafana/Prometheus configuration files are not present in the repository, so the monitoring dashboard is documented from screenshots rather than deployable dashboard manifests.
+
+## Grafana Dashboard
+
+| Executive Overview | Traffic Analysis |
+| --- | --- |
+| <img src="docs/IMAGES/grafana-executive-overview.png" alt="Grafana executive overview dashboard" width="420"> | <img src="docs/IMAGES/grafana-traffic-analysis.png" alt="Grafana traffic analysis dashboard" width="420"> |
+
+| Individual Microservices | JVM Monitoring |
+| --- | --- |
+| <img src="docs/IMAGES/grafana-individual-microservices.png" alt="Grafana individual microservices dashboard" width="420"> | <img src="docs/IMAGES/grafana-jvm-monitoring.png" alt="Grafana JVM monitoring dashboard" width="420"> |
 
 ## AI Workflow
 
