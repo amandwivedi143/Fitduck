@@ -1,6 +1,6 @@
 <div align="center">
   <img src="docs/IMAGES/logo.svg" width="120" alt="FitTrack Microservices logo"/>
-  <h1>FitTrack Microservices</h1>
+  <h1>FitDuck Microservices</h1>
   
   <p>
     <a href="https://luminous-caramel-4e666b.netlify.app/" style="font-size: 18px; font-weight: bold; color: #0066cc;">🚀 View Live Demo</a>
